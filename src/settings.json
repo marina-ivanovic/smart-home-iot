@@ -1,0 +1,30 @@
+{
+    "PI1": {
+        "DS1": {
+        "pin": 17,
+        "simulated": true
+        },
+        "DL": {
+            "pin": 27,
+            "simulated": true
+        },
+        "DUS1": {
+            "pin_trig": 23,
+            "pin_echo": 24,
+            "simulated": true
+        },
+        "DB": {
+            "pin": 22,
+            "simulated": true
+        },
+        "DPIR1": {
+            "pin": 4,
+            "simulated": true
+        },
+        "DMS": {
+            "R1": 5, "R2": 6, "R3": 13, "R4": 19,
+            "C1": 12, "C2": 16, "C3": 20, "C4": 21,
+            "simulated": true
+        }
+    }
+}
