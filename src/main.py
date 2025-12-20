@@ -1,4 +1,8 @@
 import threading
+from components.dms import run_dms
+from components.ds import run_ds
+from components.pir import run_pir
+from components.uds import run_uds
 from settings import load_settings
 from components.dl import run_dl
 from components.db import run_db
@@ -26,6 +30,11 @@ if __name__ == "__main__":
     lights_status, buzzer_status = False, False
 
     try:
+        if 'DS1' in pi1_settings: run_ds(pi1_settings['DS1'], threads, stop_event, "DS1")
+        if 'DUS1' in pi1_settings: run_uds(pi1_settings['DUS1'], threads, stop_event, "DUS1")
+        if 'DPIR1' in pi1_settings: run_pir(pi1_settings['DPIR1'], threads, stop_event, "DPIR1")
+        if 'DMS' in pi1_settings: run_dms(pi1_settings['DMS'], threads, stop_event, "DMS")
+
         while True:
             print_menu()
             command = input("Enter a command: ")
