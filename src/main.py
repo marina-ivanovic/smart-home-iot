@@ -11,10 +11,8 @@ except:
 
 def print_menu():
     print("\n" + "="*10 + " PI1 ACTUATORS " + "="*10)
-    print("1. DL: Light on")
-    print("2. DL: Light off")
-    print("3. DB: Buzzer on")
-    print("4. DB: Buzzer off")
+    print("1. Door Light: Toggle light")
+    print("2. Door Buzzer: Toggle buzzer")
     print("X. Exit")
     print("="*26)
 
@@ -25,19 +23,19 @@ if __name__ == "__main__":
     threads = []
     stop_event = threading.Event()
 
+    lights_status, buzzer_status = False, False
+
     try:
         while True:
             print_menu()
             command = input("Enter a command: ")
 
             if command == '1':
-                run_dl(pi1_settings['DL'], True)
+                lights_status = not lights_status
+                run_dl(pi1_settings['DL'], lights_status)
             elif command == '2':
-                run_dl(pi1_settings['DL'], False)
-            elif command == '3':
-                run_db(pi1_settings['DB'], True)
-            elif command == '4':
-                run_db(pi1_settings['DB'], False)
+                buzzer_status = not buzzer_status
+                run_db(pi1_settings['DB'], buzzer_status)
             elif command.lower() == 'x':
                 print("Exiting...")
                 stop_event.set()
