@@ -1,4 +1,6 @@
+import json
 import threading
+import paho.mqtt.client as mqtt
 from components.dms import run_dms
 from components.ds import run_ds
 from components.pir import run_pir
@@ -6,6 +8,22 @@ from components.uds import run_uds
 from settings import load_settings
 from components.dl import run_dl
 from components.db import run_db
+
+lights_status, buzzer_status = False, False
+
+def on_mqtt_message(client, userdata, msg):
+    global lights_status, buzzer_status
+
+    payload = json.loads(msg.payload.decode())
+    device = payload["device"]
+
+    if device == "DL":
+        lights_status = not lights_status
+        run_dl(pi1_settings['DL'], lights_status)
+
+    elif device == "DB":
+        buzzer_status = not buzzer_status
+        run_db(pi1_settings['DB'], buzzer_status)
 
 try:
     import RPi.GPIO as GPIO
@@ -27,14 +45,18 @@ if __name__ == "__main__":
     threads = []
     stop_event = threading.Event()
 
-    lights_status, buzzer_status = False, False
-
     try:
         if 'DS1' in pi1_settings: run_ds(pi1_settings['DS1'], threads, stop_event, "DS1")
         if 'DUS1' in pi1_settings: run_uds(pi1_settings['DUS1'], threads, stop_event, "DUS1")
         if 'DPIR1' in pi1_settings: run_pir(pi1_settings['DPIR1'], threads, stop_event, "DPIR1")
         if 'DMS' in pi1_settings: run_dms(pi1_settings['DMS'], threads, stop_event, "DMS")
 
+
+        mqtt_client = mqtt.Client()
+        mqtt_client.on_message = on_mqtt_message
+        mqtt_client.connect("localhost", 1883, 60)
+        mqtt_client.subscribe("pi1/actuator/cmd")
+        mqtt_client.loop_start()
         while True:
             print_menu()
             command = input("Enter a command: ")
