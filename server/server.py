@@ -88,6 +88,14 @@ def retrieve_aggregate_data():
     |> mean()"""
     return handle_influx_query(query)
 
+@app.route("/actuator/<device>/toggle", methods=["GET"])
+def actuator_toggle(device):
+    mqtt_client.publish(
+        "pi1/actuator/cmd",
+        json.dumps({"device": device})
+    )
+    return "OK"
+
 
 if __name__ == '__main__':
     app.run(debug=True)
