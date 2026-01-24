@@ -26,7 +26,7 @@
             "runs_on": "PI1"
         },
         "DPIR1": {
-            "pin": 4,
+            "pin": 18,
             "simulated": true,
             "name": "DPIR1",
             "runs_on": "PI1"
