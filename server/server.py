@@ -26,6 +26,8 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("Key")
     client.subscribe("MotionDetected")
     client.subscribe("Distance")
+    client.subscribe("LightOn")
+    client.subscribe("BuzzerOn")
     # TODO: subscribe to other channels here
 
 mqtt_client.on_connect = on_connect
