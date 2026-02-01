@@ -6,9 +6,9 @@ def generate_values():
     while True:
         yield random.choice(keys)
 
-def run_dms_simulator(delay, callback, stop_event, name):
+def run_dms_simulator(delay, callback, stop_event, name, publish_event, settings):
     for key in generate_values():
         time.sleep(delay)
-        callback(key, name)
+        callback(key, name, publish_event, settings)
         if stop_event.is_set():
             break

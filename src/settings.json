@@ -1,30 +1,42 @@
 {
     "PI1": {
         "DS1": {
-        "pin": 17,
-        "simulated": true
+            "pin": 17,
+            "simulated": true,
+            "name": "DS1",
+            "runs_on": "PI1"
         },
         "DL": {
             "pin": 27,
-            "simulated": true
+            "simulated": true,
+            "name": "DL",
+            "runs_on": "PI1"
         },
         "DUS1": {
             "pin_trig": 23,
             "pin_echo": 24,
-            "simulated": true
+            "simulated": true,
+            "name": "DUS1",
+            "runs_on": "PI1"
         },
         "DB": {
             "pin": 22,
-            "simulated": true
+            "simulated": true,
+            "name": "DB",
+            "runs_on": "PI1"
         },
         "DPIR1": {
-            "pin": 4,
-            "simulated": true
+            "pin": 18,
+            "simulated": true,
+            "name": "DPIR1",
+            "runs_on": "PI1"
         },
         "DMS": {
             "R1": 5, "R2": 6, "R3": 13, "R4": 19,
             "C1": 12, "C2": 16, "C3": 20, "C4": 21,
-            "simulated": true
+            "simulated": true,
+            "name": "DMS",
+            "runs_on": "PI1"
         }
     }
 }
