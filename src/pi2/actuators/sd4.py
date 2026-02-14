@@ -1,11 +1,6 @@
 import time
 
-# TM1637-style display ili multipleksovani 7-seg
 def actuate_4sd(settings, display_value):
-    """
-    Display value on 4-digit 7-segment display.
-    display_value: string like "12:34" or "00:00"
-    """
     if settings['simulated']:
         t = time.localtime()
         print(f"\nTimestamp: {time.strftime('%H:%M:%S', t)} | 4SD Display: {display_value}\n")
@@ -60,7 +55,6 @@ def actuate_4sd(settings, display_value):
                 GPIO.output(digits[digit_idx], 1)
 
 def blink_4sd(settings):
-    """Blink display with 00:00 when timer expires."""
     if settings['simulated']:
         for _ in range(5):
             print("4SD: 00:00")
