@@ -3,6 +3,7 @@ import threading
 import time
 import json
 import paho.mqtt.publish as publish
+import settings
 from env import HOSTNAME, PORT
 
 batch = []
@@ -54,5 +55,12 @@ def run_ds(settings, threads, stop_event, name):
         ds_thread.start()
         threads.append(ds_thread)
     else:
-        # todo
-        pass
+        import RPi.GPIO as GPIO
+        pin = settings['pin']
+        GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        
+        def real_callback(channel):
+            state = 1 if GPIO.input(pin) == 0 else 0 # 1=Pressed/Closed, 0=Open
+            ds_callback(state, name, publish_event, settings)
+
+        GPIO.add_event_detect(pin, GPIO.BOTH, callback=real_callback, bouncetime=300)

@@ -54,5 +54,13 @@ def run_ds(settings, threads, stop_event, name):
         ds_thread.start()
         threads.append(ds_thread)
     else:
-        # todo
-        pass
+        import RPi.GPIO as GPIO
+        pin = settings['pin']
+        GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        
+        def real_callback(channel):
+            if GPIO.input(pin) == 0:
+                ds_callback(1, name, publish_event, settings)
+                
+        # Add interrupt
+        GPIO.add_event_detect(pin, GPIO.FALLING, callback=real_callback, bouncetime=300)

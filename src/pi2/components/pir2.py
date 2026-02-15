@@ -53,5 +53,12 @@ def run_pir(settings, threads, stop_event, name):
         pir_thread.start()
         threads.append(pir_thread)
     else:
-        # todo
-        pass
+        import RPi.GPIO as GPIO
+        pin = settings['pin']
+        GPIO.setup(pin, GPIO.IN)
+        
+        def real_callback(channel):
+            if GPIO.input(pin):
+                pir_callback(name, publish_event, settings)
+
+        GPIO.add_event_detect(pin, GPIO.RISING, callback=real_callback, bouncetime=2000)

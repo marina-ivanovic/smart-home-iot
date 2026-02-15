@@ -1,17 +1,17 @@
 import time
+import threading
 
-def actuate_4sd(settings, display_value):
+def actuate_4sd(settings, display_value, single_pass=False):
     if settings['simulated']:
-        t = time.localtime()
-        print(f"\nTimestamp: {time.strftime('%H:%M:%S', t)} | 4SD Display: {display_value}\n")
+        if not single_pass:
+            t = time.localtime()
+            print(f"\nTimestamp: {time.strftime('%H:%M:%S', t)} | 4SD Display: {display_value}\n")
     else:
-        # Real 7-segment display implementation
         import RPi.GPIO as GPIO
-        
         segments = settings['segments']
         digits = settings['digits']
         
-        # Number to segment mapping (a,b,c,d,e,f,g)
+        # Map character to segments (a,b,c,d,e,f,g)
         num = {
             ' ': (0,0,0,0,0,0,0),
             '0': (1,1,1,1,1,1,0),
@@ -23,36 +23,32 @@ def actuate_4sd(settings, display_value):
             '6': (1,0,1,1,1,1,1),
             '7': (1,1,1,0,0,0,0),
             '8': (1,1,1,1,1,1,1),
-            '9': (1,1,1,1,0,1,1),
-            ':': (0,0,0,0,0,0,0)  # colon handled by DP (8th pin)
+            '9': (1,1,1,1,0,1,1)
         }
+
+        for s in segments: GPIO.setup(s, GPIO.OUT)
+        for d in digits: GPIO.setup(d, GPIO.OUT)
+
+        s_val = display_value.replace(':', '').rjust(4)
         
-        # Setup GPIO
-        for segment in segments:
-            GPIO.setup(segment, GPIO.OUT)
-            GPIO.output(segment, 0)
-        
-        for digit in digits:
-            GPIO.setup(digit, GPIO.OUT)
-            GPIO.output(digit, 1)
-        
-        # Display multiplexing (brief display to avoid blocking)
-        s = display_value.replace(':', '').rjust(4)
-        for _ in range(10):  # Quick refresh cycles
+        loops = 1 if single_pass else 50 # 50 loops ~0.2s refresh
+        for _ in range(loops):
             for digit_idx in range(4):
-                char = s[digit_idx] if digit_idx < len(s) else ' '
-                for seg_idx in range(7):
-                    GPIO.output(segments[seg_idx], num[char][seg_idx])
+                char = s_val[digit_idx] if digit_idx < len(s_val) else ' '
                 
-                # Handle colon (decimal point on digit 1)
+                # Set segments
+                for i in range(7):
+                    GPIO.output(segments[i], num.get(char, num[' '])[i])
+                
+                # Handle colon (DP on digit 1)
                 if ':' in display_value and digit_idx == 1:
-                    GPIO.output(segments[7], 1)  # DP on
+                    GPIO.output(segments[7], 1)
                 else:
                     GPIO.output(segments[7], 0)
-                
-                GPIO.output(digits[digit_idx], 0)
-                time.sleep(0.001)
-                GPIO.output(digits[digit_idx], 1)
+
+                GPIO.output(digits[digit_idx], 0) # Select digit
+                time.sleep(0.001) 
+                GPIO.output(digits[digit_idx], 1) # Deselect digit
 
 def blink_4sd(settings):
     if settings['simulated']:
@@ -62,5 +58,23 @@ def blink_4sd(settings):
             print("4SD:     ")
             time.sleep(0.5)
     else:
-        # Implement real blinking
-        pass
+        # Real blinking implementation
+        import RPi.GPIO as GPIO
+        segments = settings['segments']
+        digits = settings['digits']
+        
+        # Turn off all segments/digits (blank)
+        def clear_display():
+            for d in digits: GPIO.output(d, 0)
+            for s in segments: GPIO.output(s, 0)
+
+        # Blink 5 times
+        for _ in range(5):
+            # ON phase (show 00:00 briefly repeated to persist vision)
+            end_time = time.time() + 0.5
+            while time.time() < end_time:
+                actuate_4sd(settings, "00:00", single_pass=True)
+            
+            # OFF phase
+            clear_display()
+            time.sleep(0.5)
