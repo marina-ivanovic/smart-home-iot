@@ -1,0 +1,15 @@
+<div class="control-panel">
+  <h3>PI2: Štoperica (4SD)</h3>
+  
+  <div class="control-group">
+    <label>Postavi vreme (sekunde):</label>
+    <input type="number" [(ngModel)]="timerValue">
+    <button (click)="setTimer()">Postavi 4SD</button>
+  </div>
+
+  <div class="control-group">
+    <label>Konfiguriši dodavanje (BTN):</label>
+    <input type="number" [(ngModel)]="addAmount">
+    <button (click)="configureAdd()">Sačuvaj konfiguraciju</button>
+  </div>
+</div>
