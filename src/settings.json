@@ -38,5 +38,50 @@
             "name": "DMS",
             "runs_on": "PI1"
         }
+    },
+    "PI2": {
+        "DS2": {
+            "pin": 17,
+            "simulated": true,
+            "name": "DS2",
+            "runs_on": "PI2"
+        },
+        "DUS2": {
+            "pin_trig": 23,
+            "pin_echo": 24,
+            "simulated": true,
+            "name": "DUS2",
+            "runs_on": "PI2"
+        },
+        "DPIR2": {
+            "pin": 18,
+            "simulated": true,
+            "name": "DPIR2",
+            "runs_on": "PI2"
+        },
+        "4SD": {
+            "segments": [11, 10, 9, 25, 8, 7, 5, 6],
+            "digits": [26, 19, 13, 12],
+            "simulated": true,
+            "name": "4SD",
+            "runs_on": "PI2"
+        },
+        "BTN": {
+            "pin": 27,
+            "simulated": true,
+            "name": "BTN",
+            "runs_on": "PI2"
+        },
+        "DHT3": {
+            "pin": 22,
+            "simulated": true,
+            "name": "DHT3",
+            "runs_on": "PI2"
+        },
+        "GSG": {
+            "simulated": true,
+            "name": "GSG",
+            "runs_on": "PI2"
+        }
     }
 }
