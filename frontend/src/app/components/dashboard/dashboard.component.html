@@ -1,0 +1,177 @@
+<div class="global-alarm-banner" *ngIf="globalAlarmActive">
+  <div class="alarm-content">
+    <h1>🚨 ALARM TRIGGERED 🚨</h1>
+    <p>Security breach detected. The system buzzer is currently active.</p>
+    <div class="deactivate-controls">
+      <button class="btn-deactivate" (click)="deactivateGlobalAlarm()">DEACTIVATE</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="dashboard-container">
+  
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>🏠 Smart Home IoT</h1>
+      <div class="status-badge pulse">System Online</div>
+    </div>
+    <div class="tabs">
+      <button [class.active]="activeTab === 'PI1'" (click)="setTab('PI1')">
+        🚪 Entrance (PI1)
+      </button>
+      <button [class.active]="activeTab === 'PI2'" (click)="setTab('PI2')">
+        🍳 Kitchen (PI2)
+      </button>
+      <button [class.active]="activeTab === 'PI3'" (click)="setTab('PI3')">
+        🛏️ Bedroom (PI3)
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="dashboard-content">
+
+    <div class="testing-panel">
+      <div class="panel-header">
+        <h3>🛠️ System Testing & Security (Defense Controls)</h3>
+        <button class="btn-toggle" [class.active]="alarmSystemEnabled" (click)="toggleAlarmSystem()">
+          {{ alarmSystemEnabled ? 'ALARM SYSTEM: ENABLED' : 'ALARM SYSTEM: DISABLED (Muted)' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- PI 1 SECTION: ENTRANCE -->
+    <div *ngIf="activeTab === 'PI1'" class="device-panel fade-in">
+      <div class="section-header">
+        <h2>Entrance Control</h2>
+        <span class="device-id">Device: PI-1</span>
+      </div>
+      
+      <div class="controls-grid">
+        <div class="control-card">
+          <div class="card-icon">💡</div>
+          <h3>Door Light (DL)</h3>
+          <button class="btn-toggle" [class.active]="false" (click)="toggleLight()">
+            Toggle Light
+          </button>
+        </div>
+        <div class="control-card">
+          <div class="card-icon">🔔</div>
+          <h3>Door Buzzer (DB)</h3>
+          <button class="btn-toggle warning" (click)="toggleBuzzer()">
+            Toggle Buzzer
+          </button>
+        </div>
+      </div>
+
+      <h3>Live Sensors</h3>
+      <div class="sensor-grid">
+        <div class="sensor-card" *ngFor="let item of filteredData">
+          <div class="sensor-icon">📡</div>
+          <div class="sensor-info">
+            <h4>{{ item.measurement }}</h4>
+            <p class="sensor-value">{{ item.value }}</p>
+            <span class="sensor-name">{{ item.name }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="grafana-embed">
+        <iframe src="http://localhost:3000/goto/ffdii4xvpnl6ob?orgId=1" width="100%" height="450" frameborder="0"></iframe>
+      </div>
+    </div>
+
+    <!-- PI 2 SECTION: KITCHEN -->
+    <div *ngIf="activeTab === 'PI2'" class="device-panel fade-in">
+      <div class="section-header">
+        <h2>Kitchen & Sensors</h2>
+        <span class="device-id">Device: PI-2</span>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="controls-grid">
+        
+        <!-- 4SD Timer Control -->
+        <div class="control-card large">
+          <div class="card-header-row">
+            <h3>⏱️ Timer (4SD)</h3>
+            <span class="status-indicator" [class.active]="timerRunning">
+              {{ timerRunning ? 'RUNNING' : 'IDLE' }}
+            </span>
+          </div>
+          
+          <div class="control-body">
+            <div class="input-group">
+              <label>Set Time:</label>
+              <div class="input-wrapper">
+                <input type="number" [(ngModel)]="timerValue" placeholder="60">
+                <span class="unit">sec</span>
+              </div>
+              <button class="btn-primary" (click)="setTimer()">START</button>
+            </div>
+
+            <div class="input-group">
+              <label>BTN Adds:</label>
+              <div class="input-wrapper">
+                <input type="number" [(ngModel)]="timerAddAmount" placeholder="10">
+                <span class="unit">sec</span>
+              </div>
+              <button class="btn-secondary" (click)="configureAdd()">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRAFANA -->
+      <h3>Data History</h3>
+      <div class="grafana-embed">
+        <iframe src="http://localhost:3000/goto/dfdim7amzgsn4c?orgId=1" width="100%" height="450" frameborder="0"></iframe>
+      </div>
+    </div>
+
+
+    <!-- PI 3 SECTION: BEDROOM -->
+    <div *ngIf="activeTab === 'PI3'" class="device-panel fade-in">
+      <div class="section-header">
+        <h2>Bedroom & Living Room</h2>
+        <span class="device-id">Device: PI-3</span>
+      </div>
+
+      <div class="controls-grid">
+        <div class="control-card large">
+          <div class="card-header-row">
+            <h3>💡 Smart Light (BRGB)</h3>
+            <div class="toggle-wrapper">
+               <span class="toggle-label">{{ rgbState ? 'ON' : 'OFF' }}</span>
+            </div>
+          </div>
+          
+          <div class="rgb-controls">
+            <button class="btn-toggle" [class.active]="rgbState" (click)="toggleRGB()">
+              {{ rgbState ? 'TURN OFF' : 'TURN ON' }}
+            </button>
+            <div class="color-picker-wrapper">
+              <label>Color:</label>
+              <input type="color" [(ngModel)]="rgbColor" (change)="setRGBColor()">
+            </div>
+          </div>
+        </div>
+
+        <div class="control-card">
+          <h3>📟 LCD Display</h3>
+          <div class="lcd-container">
+            <p class="lcd-preview">{{ lcdMessage }}</p>
+          </div>
+          <small>Displays Temperature/Humidity</small>
+        </div>
+      </div>
+
+      <div class="grafana-embed">
+         <div class="placeholder-grafana">
+            <p>Grafana Panel for PI3 (Coming Soon)</p>
+         </div>
+      </div>
+    </div>
+
