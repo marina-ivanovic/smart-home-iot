@@ -54,5 +54,44 @@ def run_uds(settings, threads, stop_event, name):
         uds_thread.start()
         threads.append(uds_thread)
     else:
-        # todo
-        pass
+        import RPi.GPIO as GPIO # type: ignore
+        trig = settings['pin_trig']
+        echo = settings['pin_echo']
+        
+        GPIO.setup(trig, GPIO.OUT)
+        GPIO.setup(echo, GPIO.IN)
+        
+        def measure_distance():
+            while not stop_event.is_set():
+                GPIO.output(trig, False)
+                time.sleep(0.2)
+                
+                GPIO.output(trig, True)
+                time.sleep(0.00001)
+                GPIO.output(trig, False)
+                
+                pulse_start = time.time()
+                pulse_end = time.time()
+                
+                timeout = time.time() + 0.1
+                while GPIO.input(echo) == 0:
+                    pulse_start = time.time()
+                    if time.time() > timeout: break
+
+                timeout = time.time() + 0.1
+                while GPIO.input(echo) == 1:
+                    pulse_end = time.time()
+                    if time.time() > timeout: break
+
+                pulse_duration = pulse_end - pulse_start
+                distance = pulse_duration * 17150
+                distance = round(distance, 2)
+                
+                if distance > 0 and distance < 400:
+                    uds_callback(distance, name, publish_event, settings)
+                    
+                time.sleep(1)
+
+        uds_thread = threading.Thread(target=measure_distance)
+        uds_thread.start()
+        threads.append(uds_thread)

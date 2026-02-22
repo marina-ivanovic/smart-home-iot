@@ -32,6 +32,7 @@ def run_db(settings, on):
     if settings['simulated']:
         actuate_db(on)
     else:
+        # TODO: VERY IMPORTANT! TEST THIS FUNCTIONALITY ON CONSULTATIONS
         import RPi.GPIO as GPIO
         GPIO.output(settings['pin'], GPIO.HIGH if on else GPIO.LOW)
         print(f"Real DB toggled: {on}")
