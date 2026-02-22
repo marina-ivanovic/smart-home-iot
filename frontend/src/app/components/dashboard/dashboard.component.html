@@ -1,3 +1,14 @@
+<div class="global-alarm-banner" *ngIf="globalAlarmActive">
+  <div class="alarm-content">
+    <h1>🚨 ALARM TRIGGERED 🚨</h1>
+    <p>Security breach detected. The system buzzer is currently active.</p>
+    <div class="deactivate-controls">
+      <button class="btn-deactivate" (click)="deactivateGlobalAlarm()">DEACTIVATE</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="dashboard-container">
   
   <!-- Header -->
@@ -21,6 +32,15 @@
 
   <!-- Main Content -->
   <main class="dashboard-content">
+
+    <div class="testing-panel">
+      <div class="panel-header">
+        <h3>🛠️ System Testing & Security (Defense Controls)</h3>
+        <button class="btn-toggle" [class.active]="alarmSystemEnabled" (click)="toggleAlarmSystem()">
+          {{ alarmSystemEnabled ? 'ALARM SYSTEM: ENABLED' : 'ALARM SYSTEM: DISABLED (Muted)' }}
+        </button>
+      </div>
+    </div>
 
     <!-- PI 1 SECTION: ENTRANCE -->
     <div *ngIf="activeTab === 'PI1'" class="device-panel fade-in">
@@ -155,5 +175,3 @@
       </div>
     </div>
 
-  </main>
-</div>

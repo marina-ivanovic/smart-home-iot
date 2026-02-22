@@ -22,14 +22,13 @@ def on_mqtt_message(client, userdata, msg):
     payload = json.loads(msg.payload.decode())
     
     if msg.topic == "pi2/timer/set":
-        # Set timer from Web app: {"seconds": 120}
-        timer_seconds = payload["seconds"]
+        # Promenjeno sa payload["seconds"] na int(payload["value"])
+        timer_seconds = int(payload.get("value", 0)) 
         timer_running = True
         print(f"Timer set to {timer_seconds} seconds")
     
     elif msg.topic == "pi2/timer/add":
-        # Add N seconds (configured via Web app)
-        add_seconds_amount = payload.get("amount", 10)
+        add_seconds_amount = int(payload.get("amount", 10))
         print(f"Add seconds amount updated to {add_seconds_amount}")
     
     elif msg.topic == "pi2/display/cmd":

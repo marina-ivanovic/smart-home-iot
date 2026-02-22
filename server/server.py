@@ -3,10 +3,11 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 import paho.mqtt.client as mqtt
 import json
+from flask_cors import CORS
 
 
 app = Flask(__name__)
-
+CORS(app)
 
 # InfluxDB Configuration
 token = "token" # TODO: change token
@@ -28,6 +29,10 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("Distance")
     client.subscribe("LightOn")
     client.subscribe("BuzzerOn")
+    client.subscribe("Humidity")
+    client.subscribe("Temperature")
+    client.subscribe("Gyroscope")
+
     # TODO: subscribe to other channels here
 
 mqtt_client.on_connect = on_connect
@@ -41,10 +46,22 @@ def save_to_db(data):
         .tag("simulated", data["simulated"])
         .tag("runs_on", data["runs_on"])
         .tag("name", data["name"])
-        .field("measurement", data["value"])
     )
+    
+    if data["measurement"] == "Gyroscope":
+        point = (point
+            .field("accel_x", data["accel_x"])
+            .field("accel_y", data["accel_y"])
+            .field("accel_z", data["accel_z"])
+            .field("gyro_x", data["gyro_x"])
+            .field("gyro_y", data["gyro_y"])
+            .field("gyro_z", data["gyro_z"])
+            .field("significant_movement", data["significant_movement"])
+        )
+    else:
+        point = point.field("measurement", data["value"])
+    
     write_api.write(bucket=bucket, org=org, record=point)
-
 
 # Route to store dummy data
 @app.route('/store_data', methods=['POST'])
@@ -96,6 +113,28 @@ def actuator_toggle(device):
     )
     return "OK"
 
+
+@app.route("/pi2/timer/set", methods=["POST"])
+def set_timer():
+    data = request.get_json()
+    seconds = int(data.get("seconds", 0))
+    mqtt_client.publish("pi2/timer/set", json.dumps({"value": str(seconds)}))
+    return jsonify({"status": "success", "message": f"Timer set to {seconds}s"})
+
+@app.route("/pi2/timer/config", methods=["POST"])
+def set_timer_add_config():
+    data = request.get_json()
+    amount = int(data.get("amount", 10))
+    mqtt_client.publish("pi2/timer/add", json.dumps({"amount": amount}))
+    return jsonify({"status": "success", "message": f"Add amount set to {amount}s"})
+
+@app.route('/api/state', methods=['GET'])
+def get_current_state():
+    query = f"""from(bucket: "{bucket}")
+    |> range(start: -1h)
+    |> filter(fn: (r) => r["_measurement"] == "Temperature" or r["_measurement"] == "Humidity")
+    |> last()"""
+    return handle_influx_query(query)
 
 if __name__ == '__main__':
     app.run(debug=True)

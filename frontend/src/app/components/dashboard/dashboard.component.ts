@@ -14,14 +14,18 @@ export class DashboardComponent implements OnInit {
   activeTab: string = 'PI1';
   sensorData: any[] = [];
   
-  // Za PI2 kontrole
+  // PI2 Kontrole
   timerValue: number = 0;
   timerAddAmount: number = 10;
+  timerRunning: boolean = false;
 
-    // PI3 Stanja
+  // PI3 Stanja
   rgbState: boolean = false;
   rgbColor: string = '#ffffff';
   lcdMessage: string = 'Initialization...';
+
+  globalAlarmActive: boolean = false;
+  alarmSystemEnabled: boolean = true;
 
   constructor(private api: ApiService) {}
 
@@ -48,95 +52,57 @@ export class DashboardComponent implements OnInit {
 
   parseInfluxData(data: any[]): any[] {
     const parsedData = [];
-    
-    // InfluxDB vraća niz zapisa (records)
-    // Svaki zapis je niz vrednosti. Moramo znati redosled kolona ili pretpostaviti standardni Influx format.
-    // Obično: 
-    // index 5 = _value
-    // index 6 = _field (npr. "value", "measurement", "temperature")
-    // index 7 = _measurement (npr. "Temperature", "Humidity")
-    // index 8 = name (tag koji smo dodali: "DHT1", "DS1"...)
-    // index 9 = runs_on (tag: "PI1", "PI2")
-    // index 10 = simulated (tag)
-
-    // Najbolje je da u console.log(data) vidiš tačnu strukturu prvog elementa
-    // Ali evo generičke logike koja traži ključne podatke:
-
     for (const record of data) {
-      // Filtriramo samo validne zapise
       if (!record || record.length < 5) continue;
-
-      const measurement = record[7]; // _measurement
-      const value = record[5];       // _value
-      const name = record[8];        // name tag
-      const runsOn = record[9];      // runs_on tag
-      const time = record[4];        // _time
-
       parsedData.push({
-        measurement: measurement,
-        value: value,
-        name: name,
-        runs_on: runsOn,
-        time: time,
-        // Dodatno formatiranje za prikaz
-        displayValue: typeof value === 'number' ? value.toFixed(2) : value 
+        measurement: record[7],
+        value: record[5],
+        name: record[8],
+        runs_on: record[9],
+        time: record[4],
+        displayValue: typeof record[5] === 'number' ? record[5].toFixed(2) : record[5] 
       });
     }
-
     return parsedData;
   }
 
-
-    // Helper metoda za dohvatanje vrednosti senzora po imenu i merenju
   getSensorValue(measurement: string, name: string, field: string = 'value'): any {
-    const sensor = this.sensorData.find(item => 
-      item.measurement === measurement && item.name === name
-    );
-
+    const sensor = this.sensorData.find(item => item.measurement === measurement && item.name === name);
     if (!sensor) return '--';
-
-    // Ako tražimo specifično polje (za žiroskop npr. accel_x)
-    if (field !== 'value' && sensor[field] !== undefined) {
-      return sensor[field];
-    }
-    
-    // Default value polje
+    if (field !== 'value' && sensor[field] !== undefined) return sensor[field];
     return sensor.value !== undefined ? sensor.value : sensor.displayValue;
   }
-  
-  // Reset Alarma (Samo vizuelno u UI, ili poziv API-ja ako postoji)
-  resetAlarm() {
-    this.alarmTriggered = false;
-  }
-  
-  // Status promenljive
-  timerRunning: boolean = false;
-  alarmTriggered: boolean = false; // Ovo treba ažurirati iz podataka (GSG significant_movement)
-
-
 
   // PI1 Kontrole
   toggleLight() { this.api.toggleActuator('DL').subscribe(); }
   toggleBuzzer() { this.api.toggleActuator('DB').subscribe(); }
 
   // PI2 Kontrole
-  setTimer() { 
-    this.api.setTimer(this.timerValue).subscribe(() => alert('Timer set!')); 
-  }
-  
-  configureAdd() { 
-    this.api.setAddAmount(this.timerAddAmount).subscribe(() => alert('Configuration saved!')); 
-  }
+  setTimer() { this.api.setTimer(this.timerValue).subscribe(() => alert('Timer set!')); }
+  configureAdd() { this.api.setAddAmount(this.timerAddAmount).subscribe(() => alert('Configuration saved!')); }
 
   // PI3 Metode
-  toggleRGB() {
-    this.rgbState = !this.rgbState;
-    // Poziv API-ja: this.api.toggleRGB(this.rgbState).subscribe();
-    console.log('RGB Toggle:', this.rgbState);
+  toggleRGB() { this.rgbState = !this.rgbState; }
+  setRGBColor() { console.log('RGB Color:', this.rgbColor); }
+
+
+  deactivateGlobalAlarm() {
+    this.globalAlarmActive = false;
+    alert('Alarm deactivated successfully via Web App.');
   }
 
-  setRGBColor() {
-    // Poziv API-ja: this.api.setRGBColor(this.rgbColor).subscribe();
-    console.log('RGB Boja:', this.rgbColor);
+  toggleAlarmSystem() {
+    this.alarmSystemEnabled = !this.alarmSystemEnabled;
+    console.log(`Alarm system is now ${this.alarmSystemEnabled ? 'ENABLED' : 'DISABLED'}.`);
+  }
+
+  triggerManualScenario(scenario: string) {
+    console.log('Triggering scenario locally:', scenario);
+    
+    if(this.alarmSystemEnabled) {
+      this.globalAlarmActive = true;
+    } else {
+      alert(`Scenario "${scenario}" executed locally, but alarm system is DISABLED for testing.`);
+    }
   }
 }
