@@ -22,7 +22,6 @@ def on_mqtt_message(client, userdata, msg):
     payload = json.loads(msg.payload.decode())
     
     if msg.topic == "pi2/timer/set":
-        # Promenjeno sa payload["seconds"] na int(payload["value"])
         timer_seconds = int(payload.get("value", 0)) 
         timer_running = True
         print(f"Timer set to {timer_seconds} seconds")

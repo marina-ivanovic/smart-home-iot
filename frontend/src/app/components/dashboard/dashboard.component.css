@@ -384,8 +384,6 @@ button { font-family: inherit; transition: all 0.2s; }
   40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
-
-/* --- GLOBAL ALARM BANNER --- */
 .global-alarm-banner {
   position: fixed;
   top: 0;
