@@ -102,87 +102,6 @@
             </div>
           </div>
         </div>
-
-        <!-- ALARM Status (GSG) -->
-        <div class="control-card alarm-card" [class.triggered]="alarmTriggered">
-          <h3>🚨 Gyro Alarm</h3>
-          <div class="alarm-status">
-            <span class="alarm-icon">{{ alarmTriggered ? '⚠️' : '🛡️' }}</span>
-            <div class="alarm-text">
-              <p class="status">{{ alarmTriggered ? 'MOVEMENT DETECTED!' : 'SECURE' }}</p>
-              <small>{{ alarmTriggered ? 'Check icon sensor' : 'No movement' }}</small>
-            </div>
-          </div>
-          <button *ngIf="alarmTriggered" class="btn-danger" (click)="resetAlarm()">RESET ALARM</button>
-        </div>
-
-      </div>
-
-      <!-- SENSORS -->
-      <h3>Live Measurements</h3>
-      <div class="sensor-grid">
-        
-        <div class="sensor-card">
-          <div class="sensor-icon hot">🌡️</div>
-          <div class="sensor-info">
-            <h4>Temperature</h4>
-            <p class="sensor-value">{{ getSensorValue('Temperature', 'DHT3') }} <span class="unit">°C</span></p>
-            <span class="sensor-name">DHT3 (Kitchen)</span>
-          </div>
-        </div>
-
-        <div class="sensor-card">
-          <div class="sensor-icon wet">💧</div>
-          <div class="sensor-info">
-            <h4>Humidity</h4>
-            <p class="sensor-value">{{ getSensorValue('Humidity', 'DHT3') }} <span class="unit">%</span></p>
-            <span class="sensor-name">DHT3 (Kitchen)</span>
-          </div>
-        </div>
-
-        <div class="sensor-card">
-          <div class="sensor-icon rotate">🔄</div>
-          <div class="sensor-info">
-            <h4>Gyroscope</h4>
-            <div class="gyro-values">
-              <div class="axis"><span>X</span> {{ getSensorValue('Gyroscope', 'GSG', 'accel_x') | number:'1.2-2' }}</div>
-              <div class="axis"><span>Y</span> {{ getSensorValue('Gyroscope', 'GSG', 'accel_y') | number:'1.2-2' }}</div>
-              <div class="axis"><span>Z</span> {{ getSensorValue('Gyroscope', 'GSG', 'accel_z') | number:'1.2-2' }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="sensor-card">
-          <div class="sensor-icon motion">🏃</div>
-          <div class="sensor-info">
-            <h4>Motion</h4>
-            <p class="sensor-value" [class.alert]="getSensorValue('MotionDetected', 'DPIR2')">
-              {{ getSensorValue('MotionDetected', 'DPIR2') ? 'DETECTED' : 'CLEAR' }}
-            </p>
-            <span class="sensor-name">DPIR2 (Door)</span>
-          </div>
-        </div>
-
-        <div class="sensor-card">
-          <div class="sensor-icon door">🚪</div>
-          <div class="sensor-info">
-            <h4>Door Status</h4>
-            <p class="sensor-value" [class.alert]="getSensorValue('ButtonPress', 'DS2')">
-              {{ getSensorValue('ButtonPress', 'DS2') ? 'OPEN' : 'CLOSED' }}
-            </p>
-            <span class="sensor-name">DS2 (Entry)</span>
-          </div>
-        </div>
-
-         <div class="sensor-card">
-          <div class="sensor-icon dist">📏</div>
-          <div class="sensor-info">
-            <h4>Distance</h4>
-            <p class="sensor-value">{{ getSensorValue('Distance', 'DUS2') }} <span class="unit">cm</span></p>
-            <span class="sensor-name">DUS2 (Entry)</span>
-          </div>
-        </div>
-
       </div>
 
       <!-- GRAFANA -->
@@ -226,34 +145,6 @@
             <p class="lcd-preview">{{ lcdMessage }}</p>
           </div>
           <small>Displays Temperature/Humidity</small>
-        </div>
-      </div>
-
-      <h3>Sensors</h3>
-      <div class="sensor-grid">
-        <div class="sensor-card">
-          <div class="sensor-icon">🛏️</div>
-          <div class="sensor-info">
-            <h4>Room Temp</h4>
-            <p class="sensor-value">-- <span class="unit">°C</span></p>
-            <span class="sensor-name">DHT1 (Bedroom)</span>
-          </div>
-        </div>
-        <div class="sensor-card">
-          <div class="sensor-icon">🛌</div>
-          <div class="sensor-info">
-            <h4>Master Temp</h4>
-            <p class="sensor-value">-- <span class="unit">°C</span></p>
-            <span class="sensor-name">DHT2 (Master)</span>
-          </div>
-        </div>
-        <div class="sensor-card">
-          <div class="sensor-icon motion">🏃</div>
-          <div class="sensor-info">
-            <h4>Movement</h4>
-            <p class="sensor-value">--</p>
-            <span class="sensor-name">DPIR3 (Living Room)</span>
-          </div>
         </div>
       </div>
 
