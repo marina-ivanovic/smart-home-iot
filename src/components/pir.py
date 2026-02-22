@@ -27,7 +27,7 @@ publisher_thread = threading.Thread(target=publisher_task, args=(publish_event, 
 publisher_thread.daemon = True
 publisher_thread.start()
 
-def pir_callback(value, name, publish_event, settings):
+def pir_callback(name, publish_event, settings):
     global publish_data_counter, publish_data_limit
 
     payload = {
@@ -35,7 +35,7 @@ def pir_callback(value, name, publish_event, settings):
         "simulated": settings['simulated'],
         "runs_on": settings["runs_on"],
         "name": settings["name"],
-        "value": value
+        "value": True
     }
 
     with counter_lock:
@@ -60,11 +60,11 @@ def run_pir(settings, threads, stop_event, name):
 
         def motion_detected(channel):
             print("You moved")
-            pir_callback(True, name, publish_event, settings)
+            pir_callback(name, publish_event, settings)
 
-        def no_motion(channel):
-            print("You stopped moving")
-            pir_callback(False, name, publish_event, settings)
+        #def no_motion(channel):
+            # print("You stopped moving")
+            #pir_callback(False, name, publish_event, settings)
             
         GPIO.add_event_detect(PIR_PIN, GPIO.RISING, callback=motion_detected)
-        GPIO.add_event_detect(PIR_PIN, GPIO.FALLING, callback=no_motion)
+        #GPIO.add_event_detect(PIR_PIN, GPIO.FALLING, callback=no_motion)
