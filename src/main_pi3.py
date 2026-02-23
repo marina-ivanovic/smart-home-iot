@@ -41,6 +41,9 @@ def on_mqtt_message(client, userdata, msg):
         if "dht3_temp" in payload:
             dht3_temperature = payload["dht3_temp"]
         
+    if msg.topic == "pi3/rgb":
+        actuate_rgb(payload["color"], pi3_settings["BRGB"], threads, stop_event, "BRGB")
+
 def trigger_lcd_loop(stop_event):
     while not stop_event.is_set():
         run_lcd(pi3_settings["LCD"], threads, stop_event, "LCD", trigger_lcd_loop, dht1_humidity, dht1_temperature, dht2_humidity, dht2_temperature, dht3_humidity, dht3_temperature)
@@ -84,6 +87,7 @@ if __name__ == "__main__":
         mqtt_client.on_message = on_mqtt_message
         mqtt_client.connect(HOSTNAME, PORT, 60)
         mqtt_client.subscribe("pi3/dht")
+        mqtt_client.subscribe("pi3/rgb")
         mqtt_client.loop_start()
         while True:
             print_menu()

@@ -55,6 +55,14 @@ def on_message(client, userdata, msg):
             )
         else:
             save_to_db(payload)
+            if topic == "IrButtonPressed":
+                color = payload["value"]
+                if color in ["1", "2", "3", "4", "5", "6", "7", "8"]:
+                    outgoing_payload = { "color": int(color) }
+                    client.publish(
+                        "pi3/rgb",
+                        json.dumps(outgoing_payload)
+                    )
 
     except Exception as e:
         print("Error processing message:", e)
