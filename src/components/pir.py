@@ -7,7 +7,7 @@ from env import HOSTNAME, PORT
 
 batch = []
 publish_data_counter = 0
-publish_data_limit = 5 # Change the batch size as needed
+publish_data_limit = 1 # Change the batch size as needed
 counter_lock = threading.Lock()
 
 def publisher_task(event, batch):
