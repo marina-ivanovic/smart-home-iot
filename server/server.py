@@ -46,7 +46,7 @@ def on_connect(client, userdata, flags, rc):
     # TODO: subscribe to other channels here
 
 def on_message(client, userdata, msg):
-    global system_on, alarm_on, people_inside
+    global system_on, alarm_on, people_inside, dus1_queue, dus2_queue, dus_queue_size
     try:
         payload = json.loads(msg.payload.decode("utf-8"))
         topic = msg.topic
@@ -76,8 +76,15 @@ def on_message(client, userdata, msg):
                     )
             
             if topic == "Distance":
-                # TODO: check which DUS it is and update dus_queue
-                pass
+                if payload["name"] == "DUS1":
+                    if len(dus1_queue) >= dus_queue_size:
+                        dus1_queue = dus1_queue[1:]
+                        dus1_queue.append(payload["value"])
+
+                if payload["name"] == "DUS2":
+                    if len(dus2_queue) >= dus_queue_size:
+                        dus2_queue = dus2_queue[1:]
+                        dus2_queue.append(payload["value"])
 
             if topic == "MotionDetected":
                 if system_on and people_inside <= 0:
@@ -91,6 +98,7 @@ def on_message(client, userdata, msg):
                     )
 
                     distance = 0
+                    someone_entering = None
                     for entry in dus1_queue:
                         if distance < entry:
                             someone_entering = False
@@ -98,13 +106,15 @@ def on_message(client, userdata, msg):
                             someone_entering = True
                         distance = entry
 
-                    if someone_entering:
-                        people_inside += 1
-                    else:
-                        people_inside -= 1
+                    if someone_entering is not None:
+                        if someone_entering:
+                            people_inside += 1
+                        else:
+                            people_inside -= 1
 
                 if payload["name"] == "DPIR2":
                     distance = 0
+                    someone_entering = None
                     for entry in dus2_queue:
                         if distance < entry:
                             someone_entering = False
@@ -112,11 +122,14 @@ def on_message(client, userdata, msg):
                             someone_entering = True
                         distance = entry
 
-                    if someone_entering:
-                        people_inside += 1
-                    else:
-                        people_inside -= 1
-
+                    if someone_entering is not None:
+                        if someone_entering:
+                            people_inside += 1
+                        else:
+                            people_inside -= 1
+                        if people_inside < 0:
+                            people_inside = 0
+                            
             if topic == "ButtonPress":
                 if payload["name"] == "DS1":
                     # TODO: if True - update ds1 last signal to whatever the current time is
