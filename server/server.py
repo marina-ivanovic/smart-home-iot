@@ -9,6 +9,15 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+# Alarm stuff
+system_on = False
+alarm_on = False
+people_inside = 0
+dus1_queue = []
+dus2_queue = []
+ds1_last_signal = None
+ds2_last_signal = None
+
 # InfluxDB Configuration
 token = "token" # TODO: change token
 org = "org" # TODO: change organization
@@ -63,6 +72,36 @@ def on_message(client, userdata, msg):
                         "pi3/rgb",
                         json.dumps(outgoing_payload)
                     )
+            
+            if topic == "MotionDetected":
+                if payload["name"] == "DPIR1":
+                    # TODO: turn on DL for 10 seconds
+                    # TODO: check dus1_queue and figure out if someone is entering or leaving - update people_inside
+                    pass
+                if payload["name"] == "DPIR2":
+                    # TODO: check dus2_queue and figure out if someone is entering or leaving - update people_inside
+                    pass
+                # TODO: if system on and people_inside is 0, turn on alarm
+
+            if topic == "ButtonPress":
+                if payload["name"] == "DS1":
+                    # TODO: if True - update ds1 last signal to whatever the current time is
+                    # TODO: if False - set ds1 last signal to None
+                    pass
+                if payload["name"] == "DS2":
+                    # TODO: if True - update ds1 last signal to whatever the current time is
+                    # TODO: if False - set ds1 last signal to None
+                    pass
+
+            if topic == "Key":
+                # TODO: compare if correct PIN was inserted
+                # WRONG PIN -> if system on turn alarm on, if system off nothing happens
+                # CORRECT PIN -> if system on, turn it off, if system off, turn it on after 10 seconds
+                pass
+
+            if topic == "Gyroscope":
+                # TODO: figure out what is "significant movement" and if there is any, turn on alarm if system is on
+                pass
 
     except Exception as e:
         print("Error processing message:", e)
@@ -169,6 +208,10 @@ def set_timer_add_config():
     amount = int(data.get("amount", 10))
     mqtt_client.publish("pi2/timer/add", json.dumps({"amount": amount}))
     return jsonify({"status": "success", "message": f"Add amount set to {amount}s"})
+
+# TODO: add route for changing BRGB in the app
+
+# TODO: add route for turning alarm off
 
 @app.route('/api/state', methods=['GET'])
 def get_current_state():
