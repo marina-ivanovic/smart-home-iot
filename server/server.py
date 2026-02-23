@@ -13,6 +13,7 @@ CORS(app)
 system_on = False
 alarm_on = False
 people_inside = 0
+dus_queue_size = 7
 dus1_queue = []
 dus2_queue = []
 ds1_last_signal = None
@@ -45,6 +46,7 @@ def on_connect(client, userdata, flags, rc):
     # TODO: subscribe to other channels here
 
 def on_message(client, userdata, msg):
+    global system_on, alarm_on, people_inside
     try:
         payload = json.loads(msg.payload.decode("utf-8"))
         topic = msg.topic
@@ -73,15 +75,47 @@ def on_message(client, userdata, msg):
                         json.dumps(outgoing_payload)
                     )
             
+            if topic == "Distance":
+                # TODO: check which DUS it is and update dus_queue
+                pass
+
             if topic == "MotionDetected":
+                if system_on and people_inside <= 0:
+                    alarm_on = True
+
                 if payload["name"] == "DPIR1":
-                    # TODO: turn on DL for 10 seconds
-                    # TODO: check dus1_queue and figure out if someone is entering or leaving - update people_inside
-                    pass
+                    outgoing_payload = { "light": True }
+                    client.publish(
+                        "pi1/motionDl",
+                        json.dumps(outgoing_payload)
+                    )
+
+                    distance = 0
+                    for entry in dus1_queue:
+                        if distance < entry:
+                            someone_entering = False
+                        else:
+                            someone_entering = True
+                        distance = entry
+
+                    if someone_entering:
+                        people_inside += 1
+                    else:
+                        people_inside -= 1
+
                 if payload["name"] == "DPIR2":
-                    # TODO: check dus2_queue and figure out if someone is entering or leaving - update people_inside
-                    pass
-                # TODO: if system on and people_inside is 0, turn on alarm
+                    distance = 0
+                    for entry in dus2_queue:
+                        if distance < entry:
+                            someone_entering = False
+                        else:
+                            someone_entering = True
+                        distance = entry
+
+                    if someone_entering:
+                        people_inside += 1
+                    else:
+                        people_inside -= 1
 
             if topic == "ButtonPress":
                 if payload["name"] == "DS1":
@@ -96,7 +130,7 @@ def on_message(client, userdata, msg):
             if topic == "Key":
                 # TODO: compare if correct PIN was inserted
                 # WRONG PIN -> if system on turn alarm on, if system off nothing happens
-                # CORRECT PIN -> if system on, turn it off, if system off, turn it on after 10 seconds
+                # CORRECT PIN -> if system on, turn it off and turn alarm off, if system off, turn it on after 10 seconds
                 pass
 
             if topic == "Gyroscope":
