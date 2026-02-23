@@ -16,12 +16,6 @@ url = "http://localhost:8086"
 bucket = "bucket" # TODO: change bucket
 influxdb_client = InfluxDBClient(url=url, token=token, org=org)
 
-
-# MQTT Configuration
-mqtt_client = mqtt.Client()
-mqtt_client.connect("localhost", 1883, 60)
-mqtt_client.loop_start()
-
 def on_connect(client, userdata, flags, rc):
     client.subscribe("ButtonPress")
     client.subscribe("Key")
@@ -36,11 +30,48 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("RgbLightValue")
     client.subscribe("LcdText")
 
+    # channel where dht values will be sent for lcd to be updated
+    client.subscribe("DhtValuesChanged")
+
     # TODO: subscribe to other channels here
 
-mqtt_client.on_connect = on_connect
-mqtt_client.on_message = lambda client, userdata, msg: save_to_db(json.loads(msg.payload.decode('utf-8')))
+def on_message(client, userdata, msg):
+    try:
+        payload = json.loads(msg.payload.decode("utf-8"))
+        topic = msg.topic
+        if topic == "DhtValuesChanged":
+            
+            fields = [
+                "dht1_temp", "dht1_hum",
+                "dht2_temp", "dht2_hum",
+                "dht3_temp", "dht3_hum"
+            ]
+            outgoing_payload = {k: payload[k] for k in fields if k in payload}
 
+            # Publish to different topic
+            client.publish(
+                "pi3/dht",
+                json.dumps(outgoing_payload)
+            )
+        else:
+            save_to_db(payload)
+
+    except Exception as e:
+        print("Error processing message:", e)
+
+# MQTT Configuration
+mqtt_client = mqtt.Client()
+mqtt_client.connect("localhost", 1883, 60)
+mqtt_client.on_connect = on_connect
+mqtt_client.on_message = on_message
+mqtt_client.loop_start()
+
+PI1_IP = "localhost"
+PI2_IP = "localhost"
+PI3_IP = "localhost"
+PI1_PORT = 1883
+PI2_PORT = 1883
+PI3_PORT = 1883
 
 def save_to_db(data):
     write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
