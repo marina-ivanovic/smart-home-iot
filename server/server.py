@@ -32,6 +32,9 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("Humidity")
     client.subscribe("Temperature")
     client.subscribe("Gyroscope")
+    client.subscribe("IrButtonPressed")
+    client.subscribe("RgbLightValue")
+    client.subscribe("LcdText")
 
     # TODO: subscribe to other channels here
 
