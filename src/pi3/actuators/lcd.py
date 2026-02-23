@@ -52,20 +52,20 @@ def lcd_callback(value, name, publish_event, settings):
 
 def run_lcd(settings, threads, stop_event, name, looping_callback, dht1_humidity, dht1_temperature, dht2_humidity, dht2_temperature, dht3_humidity, dht3_temperature):
     if settings['simulated']:
-        print(f"LCD showing: DHT1; T: {dht1_temperature}, Hum: {dht1_humidity}")
-        whole_message = f"DHT1; T: {dht1_temperature}, Hum: {dht1_humidity}"
+        print(f"LCD showing: DHT1; T: {dht1_temperature:.1f}, Hum: {dht1_humidity:.1f}")
+        whole_message = f"DHT1; T: {dht1_temperature:.1f}, Hum: {dht1_humidity:.1f}"
         lcd_callback(whole_message, settings['name'], publish_event, settings)
         sleep(3)
-        print(f"LCD showing: DHT2; T: {dht2_temperature}, Hum: {dht2_humidity}")
-        whole_message = f"DHT2; T: {dht2_temperature}, Hum: {dht2_humidity}"
+        print(f"LCD showing: DHT2; T: {dht2_temperature:.1f}, Hum: {dht2_humidity:.1f}")
+        whole_message = f"DHT2; T: {dht2_temperature:.1f}, Hum: {dht2_humidity:.1f}"
         lcd_callback(whole_message, settings['name'], publish_event, settings)
         sleep(3)
-        print(f"LCD showing: DHT3; T: {dht3_temperature}, Hum: {dht3_humidity}")
-        whole_message = f"DHT3; T: {dht3_temperature}, Hum: {dht3_humidity}"
+        print(f"LCD showing: DHT3; T: {dht3_temperature:.1f}, Hum: {dht3_humidity:.1f}")
+        whole_message = f"DHT3; T: {dht3_temperature:.1f}, Hum: {dht3_humidity:.1f}"
         lcd_callback(whole_message, settings['name'], publish_event, settings)
         sleep(3)
         
-        looping_callback()
+        looping_callback(stop_event)
     else:
         from .PCF8574 import PCF8574_GPIO
         from .Adafruit_LCD1602 import Adafruit_CharLCD
@@ -76,9 +76,9 @@ def run_lcd(settings, threads, stop_event, name, looping_callback, dht1_humidity
             
             lcd.clear()
             lcd.setCursor(0,0)  # set cursor position
-            message1 = 'DHT1; T: ' + dht1_temperature
+            message1 = f"DHT1; T: {dht1_temperature:.1f}"
             lcd.message( message1 +'\n' )# display CPU temperature
-            message2 = 'Hum: ' + dht1_humidity
+            message2 = f"Hum: {dht1_humidity:.1f}"
             lcd.message( message2 )   # display the time
             whole_message = message1 + ', ' + message2
             lcd_callback(whole_message, settings['name'], publish_event, settings)
@@ -86,9 +86,9 @@ def run_lcd(settings, threads, stop_event, name, looping_callback, dht1_humidity
 
             lcd.clear()
             lcd.setCursor(0,0)  # set cursor position
-            message1 = 'DHT2; T: ' + dht2_temperature
+            message1 = f"DHT2; T: {dht2_temperature:.1f}"
             lcd.message( message1 +'\n' )# display CPU temperature
-            message2 = 'Hum: ' + dht2_humidity
+            message2 = f"Hum: {dht2_humidity:.1f}"
             lcd.message( message2 )   # display the time
             whole_message = message1 + ', ' + message2
             lcd_callback(whole_message, settings['name'], publish_event, settings)
@@ -96,9 +96,9 @@ def run_lcd(settings, threads, stop_event, name, looping_callback, dht1_humidity
 
             lcd.clear()
             lcd.setCursor(0,0)  # set cursor position
-            message1 = 'DHT3; T: ' + dht3_temperature
+            message1 = f"DHT3; T: {dht3_temperature:.1f}"
             lcd.message( message1 +'\n' )# display CPU temperature
-            message2 = 'Hum: ' + dht3_humidity
+            message2 = f"Hum: {dht3_humidity:.1f}"
             lcd.message( message2 )   # display the time
             whole_message = message1 + ', ' + message2
             lcd_callback(whole_message, settings['name'], publish_event, settings)
@@ -122,5 +122,5 @@ def run_lcd(settings, threads, stop_event, name, looping_callback, dht1_humidity
         # Create LCD, passing in MCP GPIO adapter.
         lcd = Adafruit_CharLCD(pin_rs=0, pin_e=2, pins_db=[4,5,6,7], GPIO=mcp)
         loop(stop_event, settings)
-        looping_callback()
+        looping_callback(stop_event)
 
