@@ -9,15 +9,29 @@ from pi3.components.ir_receiver import run_ir
 from pi3.actuators.rgb import actuate_rgb
 from pi3.actuators.lcd import run_lcd
 
-lights_status, buzzer_status = False, False
+dht1_humidity = 0.0
+dht1_temperature = 0.0
+dht2_humidity = 0.0
+dht2_temperature = 0.0
+dht3_humidity = 0.0
+dht3_temperature = 0.0
 
 def on_mqtt_message(client, userdata, msg):
-    global lights_status, buzzer_status
+    global dht1_humidity, dht1_temperature, dht2_humidity, dht2_temperature, dht3_humidity, dht3_temperature
 
     payload = json.loads(msg.payload.decode())
-    device = payload["device"]
-
-    print(device)
+    
+    # TODO: parse payload and set respective values
+    if msg.topic == "pi3/dht":
+        dht1_humidity = 0.0
+        dht1_temperature = 0.0
+        dht2_humidity = 0.0
+        dht2_temperature = 0.0
+        dht3_humidity = 0.0
+        dht3_temperature = 0.0
+        
+def trigger_lcd_loop():
+    run_lcd(pi3_settings["LCD"], threads, stop_event, "LCD", trigger_lcd_loop, dht1_humidity, dht1_temperature, dht2_humidity, dht2_temperature, dht3_humidity, dht3_temperature)
 
 try:
     import RPi.GPIO as GPIO # type: ignore
@@ -50,8 +64,8 @@ if __name__ == "__main__":
         if 'DHT2' in pi3_settings: run_dht2(pi3_settings['DHT2'], threads, stop_event, "DHT2")
         if 'DPIR3' in pi3_settings: run_pir(pi3_settings['DPIR3'], threads, stop_event, "DPIR3")
         if 'IR' in pi3_settings: run_ir(pi3_settings['IR'], threads, stop_event, "IR")
-
-        run_lcd(pi3_settings["LCD"], threads, stop_event, "LCD")
+        trigger_lcd_loop()
+        
 
         # mqtt_client = mqtt.Client()
         # mqtt_client.on_message = on_mqtt_message
