@@ -8,6 +8,7 @@ from pi3.sensors.pir3 import run_pir
 from pi3.components.ir_receiver import run_ir
 from pi3.actuators.rgb import actuate_rgb
 from pi3.actuators.lcd import run_lcd
+from env import HOSTNAME, PORT
 
 dht1_humidity = 0.0
 dht1_temperature = 0.0
@@ -21,14 +22,24 @@ def on_mqtt_message(client, userdata, msg):
 
     payload = json.loads(msg.payload.decode())
     
-    # TODO: parse payload and set respective values
     if msg.topic == "pi3/dht":
-        dht1_humidity = 0.0
-        dht1_temperature = 0.0
-        dht2_humidity = 0.0
-        dht2_temperature = 0.0
-        dht3_humidity = 0.0
-        dht3_temperature = 0.0
+        if "dht1_hum" in payload:
+            dht1_humidity = payload["dht1_hum"]
+
+        if "dht1_temp" in payload:
+            dht1_temperature = payload["dht1_temp"]
+
+        if "dht2_hum" in payload:
+            dht2_humidity = payload["dht2_hum"]
+
+        if "dht2_temp" in payload:
+            dht2_temperature = payload["dht2_temp"]
+
+        if "dht3_hum" in payload:
+            dht3_humidity = payload["dht3_hum"]
+
+        if "dht3_temp" in payload:
+            dht3_temperature = payload["dht3_temp"]
         
 def trigger_lcd_loop():
     run_lcd(pi3_settings["LCD"], threads, stop_event, "LCD", trigger_lcd_loop, dht1_humidity, dht1_temperature, dht2_humidity, dht2_temperature, dht3_humidity, dht3_temperature)
@@ -67,11 +78,11 @@ if __name__ == "__main__":
         trigger_lcd_loop()
         
 
-        # mqtt_client = mqtt.Client()
-        # mqtt_client.on_message = on_mqtt_message
-        # mqtt_client.connect("localhost", 1883, 60)
-        # mqtt_client.subscribe("pi3/actuator/cmd")
-        # mqtt_client.loop_start()
+        mqtt_client = mqtt.Client()
+        mqtt_client.on_message = on_mqtt_message
+        mqtt_client.connect(HOSTNAME, PORT, 60)
+        mqtt_client.subscribe("pi3/dht")
+        mqtt_client.loop_start()
         while True:
             print_menu()
             command = input("Enter a command: ")
