@@ -13,6 +13,7 @@ import threading
 import json
 import paho.mqtt.publish as publish
 from env import HOSTNAME, PORT
+from simulators.ir import run_ir_simulator
 
 batch = []
 publish_data_counter = 0
@@ -53,11 +54,15 @@ def ir_callback(value, name, publish_event, settings):
         if publish_data_counter >= publish_data_limit:
             publish_event.set()
 
+    print(f"{name} | Pressed {value}" )
+
 
 # Static program vars
 def run_ir(settings, threads, stop_event, name):
     if settings['simulated']:
-        pass # TODO: run simulation
+        ir_thread = threading.Thread(target=run_ir_simulator, args=(3, ir_callback, stop_event, name, publish_event, settings))
+        ir_thread.start()
+        threads.append(ir_thread)
     else:
         import RPi.GPIO as GPIO # type: ignore
         pin = settings['pin']
