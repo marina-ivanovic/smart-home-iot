@@ -7,6 +7,7 @@ from pi3.sensors.dht2 import run_dht as run_dht2
 from pi3.sensors.pir3 import run_pir
 from pi3.components.ir_receiver import run_ir
 from pi3.actuators.rgb import actuate_rgb
+from pi3.actuators.lcd import run_lcd
 
 lights_status, buzzer_status = False, False
 
@@ -50,6 +51,8 @@ if __name__ == "__main__":
         if 'DPIR3' in pi3_settings: run_pir(pi3_settings['DPIR3'], threads, stop_event, "DPIR3")
         if 'IR' in pi3_settings: run_ir(pi3_settings['IR'], threads, stop_event, "IR")
 
+        run_lcd(pi3_settings["LCD"], threads, stop_event, "LCD")
+
         # mqtt_client = mqtt.Client()
         # mqtt_client.on_message = on_mqtt_message
         # mqtt_client.connect("localhost", 1883, 60)
@@ -60,21 +63,21 @@ if __name__ == "__main__":
             command = input("Enter a command: ")
 
             if command == '1':
-                actuate_rgb(1, settings, threads, stop_event, "BRGB")
+                actuate_rgb(1, pi3_settings["BRGB"], threads, stop_event, "BRGB")
             elif command == '2':
-                actuate_rgb(2, settings, threads, stop_event, "BRGB")
+                actuate_rgb(2, pi3_settings["BRGB"], threads, stop_event, "BRGB")
             elif command == '3':
-                actuate_rgb(3, settings, threads, stop_event, "BRGB")
+                actuate_rgb(3, pi3_settings["BRGB"], threads, stop_event, "BRGB")
             elif command == '4':
-                actuate_rgb(4, settings, threads, stop_event, "BRGB")
+                actuate_rgb(4, pi3_settings["BRGB"], threads, stop_event, "BRGB")
             elif command == '5':
-                actuate_rgb(5, settings, threads, stop_event, "BRGB")
+                actuate_rgb(5, pi3_settings["BRGB"], threads, stop_event, "BRGB")
             elif command == '6':
-                actuate_rgb(6, settings, threads, stop_event, "BRGB")
+                actuate_rgb(6, pi3_settings["BRGB"], threads, stop_event, "BRGB")
             elif command == '7':
-                actuate_rgb(7, settings, threads, stop_event, "BRGB")
+                actuate_rgb(7, pi3_settings["BRGB"], threads, stop_event, "BRGB")
             elif command == '8':
-                actuate_rgb(8, settings, threads, stop_event, "BRGB")
+                actuate_rgb(8, pi3_settings["BRGB"], threads, stop_event, "BRGB")
 
             elif command.lower() == 'x':
                 print("Exiting...")

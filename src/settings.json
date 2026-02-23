@@ -112,7 +112,6 @@
             "runs_on": "PI3"
         },
         "LCD": {
-            // does not have customizable pins, as it is hardware-limited to only GPIO2 and GPIO3 for SDA and SCL used by the I2C protocol
             "simulated": true,
             "name": "LCD",
             "runs_on": "PI3"
