@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 import threading
-from .PCF8574 import PCF8574_GPIO
-from .Adafruit_LCD1602 import Adafruit_CharLCD
+
 
 from time import sleep, strftime
 from datetime import datetime
@@ -13,7 +12,7 @@ from env import HOSTNAME, PORT
 
 batch = []
 publish_data_counter = 0
-publish_data_limit = 5 # Change the batch size as needed
+publish_data_limit = 1 # Change the batch size as needed
 counter_lock = threading.Lock()
 
 def publisher_task(event, batch):
@@ -51,50 +50,77 @@ def lcd_callback(value, name, publish_event, settings):
         if publish_data_counter >= publish_data_limit:
             publish_event.set()
 
-def get_cpu_temp():     # get CPU temperature and store it into file "/sys/class/thermal/thermal_zone0/temp"
-    tmp = open('/sys/class/thermal/thermal_zone0/temp')
-    cpu = tmp.read()
-    tmp.close()
-    return '{:.2f}'.format( float(cpu)/1000 ) + ' C'
- 
-def get_time_now():     # get system time
-    return datetime.now().strftime('    %H:%M:%S')
-    
-def loop(stop_event, settings):
-    mcp.output(3,1)     # turn on LCD backlight
-    lcd.begin(16,2)     # set number of LCD lines and columns
-    while not stop_event.is_set():         
-        #lcd.clear()
-        lcd.setCursor(0,0)  # set cursor position
-        message1 = 'CPU: ' + get_cpu_temp()
-        lcd.message( message1 +'\n' )# display CPU temperature
-        message2 = get_time_now()
-        lcd.message( message2 )   # display the time
-        whole_message = message1 + ', ' + message2
-        lcd_callback(whole_message, settings['name'], publish_event, settings)
-        sleep(1)
-        
-def destroy():
-    lcd.clear()
-    
-PCF8574_address = 0x27  # I2C address of the PCF8574 chip.
-PCF8574A_address = 0x3F  # I2C address of the PCF8574A chip.
-# Create PCF8574 GPIO adapter.
-try:
-	mcp = PCF8574_GPIO(PCF8574_address)
-except:
-	try:
-		mcp = PCF8574_GPIO(PCF8574A_address)
-	except:
-		print ('I2C Address Error !')
-		exit(1)
-# Create LCD, passing in MCP GPIO adapter.
-lcd = Adafruit_CharLCD(pin_rs=0, pin_e=2, pins_db=[4,5,6,7], GPIO=mcp)
-
-def run_lcd(settings, threads, stop_event, name):
+def run_lcd(settings, threads, stop_event, name, looping_callback, dht1_humidity, dht1_temperature, dht2_humidity, dht2_temperature, dht3_humidity, dht3_temperature):
     if settings['simulated']:
-        # TODO: change so it's showing DHT1, DHT2, DHT3 values
-        print(f"LCD showing: CPU: + {get_cpu_temp()}, {get_time_now()}")
+        print(f"LCD showing: DHT1; T: {dht1_temperature}, Hum: {dht1_humidity}")
+        whole_message = f"DHT1; T: {dht1_temperature}, Hum: {dht1_humidity}"
+        lcd_callback(whole_message, settings['name'], publish_event, settings)
+        sleep(3)
+        print(f"LCD showing: DHT2; T: {dht2_temperature}, Hum: {dht2_humidity}")
+        whole_message = f"DHT2; T: {dht2_temperature}, Hum: {dht2_humidity}"
+        lcd_callback(whole_message, settings['name'], publish_event, settings)
+        sleep(3)
+        print(f"LCD showing: DHT3; T: {dht3_temperature}, Hum: {dht3_humidity}")
+        whole_message = f"DHT3; T: {dht3_temperature}, Hum: {dht3_humidity}"
+        lcd_callback(whole_message, settings['name'], publish_event, settings)
+        sleep(3)
+        
+        looping_callback()
     else:
+        from .PCF8574 import PCF8574_GPIO
+        from .Adafruit_LCD1602 import Adafruit_CharLCD
+
+        def loop(stop_event, settings):
+            mcp.output(3,1)     # turn on LCD backlight
+            lcd.begin(16,2)     # set number of LCD lines and columns      
+            
+            lcd.clear()
+            lcd.setCursor(0,0)  # set cursor position
+            message1 = 'DHT1; T: ' + dht1_temperature
+            lcd.message( message1 +'\n' )# display CPU temperature
+            message2 = 'Hum: ' + dht1_humidity
+            lcd.message( message2 )   # display the time
+            whole_message = message1 + ', ' + message2
+            lcd_callback(whole_message, settings['name'], publish_event, settings)
+            sleep(3)
+
+            lcd.clear()
+            lcd.setCursor(0,0)  # set cursor position
+            message1 = 'DHT2; T: ' + dht2_temperature
+            lcd.message( message1 +'\n' )# display CPU temperature
+            message2 = 'Hum: ' + dht2_humidity
+            lcd.message( message2 )   # display the time
+            whole_message = message1 + ', ' + message2
+            lcd_callback(whole_message, settings['name'], publish_event, settings)
+            sleep(3)
+
+            lcd.clear()
+            lcd.setCursor(0,0)  # set cursor position
+            message1 = 'DHT3; T: ' + dht3_temperature
+            lcd.message( message1 +'\n' )# display CPU temperature
+            message2 = 'Hum: ' + dht3_humidity
+            lcd.message( message2 )   # display the time
+            whole_message = message1 + ', ' + message2
+            lcd_callback(whole_message, settings['name'], publish_event, settings)
+            sleep(3)
+                
+        def destroy():
+            lcd.clear()
+            
+        PCF8574_address = 0x27  # I2C address of the PCF8574 chip.
+        PCF8574A_address = 0x3F  # I2C address of the PCF8574A chip.
+        # Create PCF8574 GPIO adapter.
+        try:
+            mcp = PCF8574_GPIO(PCF8574_address)
+        except:
+            try:
+                mcp = PCF8574_GPIO(PCF8574A_address)
+            except:
+                print ('I2C Address Error !')
+                exit(1)
+
+        # Create LCD, passing in MCP GPIO adapter.
+        lcd = Adafruit_CharLCD(pin_rs=0, pin_e=2, pins_db=[4,5,6,7], GPIO=mcp)
         loop(stop_event, settings)
+        looping_callback()
 
