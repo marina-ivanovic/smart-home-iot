@@ -5,6 +5,9 @@ import json
 import paho.mqtt.publish as publish
 from env import HOSTNAME, PORT
 
+last_lcd_publish_time = 0
+lcd_publish_interval = 3
+
 batch = []
 publish_data_counter = 0
 publish_data_limit = 5
@@ -28,7 +31,7 @@ publisher_thread.daemon = True
 publisher_thread.start()
 
 def dht_callback(humidity, temperature, name, publish_event, settings):
-    global publish_data_counter, publish_data_limit
+    global publish_data_counter, publish_data_limit, last_lcd_publish_time, lcd_publish_interval
     
     payload_humidity = {
         "measurement": "Humidity",
@@ -45,6 +48,11 @@ def dht_callback(humidity, temperature, name, publish_event, settings):
         "name": settings["name"],
         "value": temperature
     }
+
+    payload_for_lcd = {
+        "dht1_temp": temperature,
+        "dht1_hum": humidity
+    }
     
     with counter_lock:
         batch.append(('Humidity', json.dumps(payload_humidity), 0, True))
@@ -53,6 +61,17 @@ def dht_callback(humidity, temperature, name, publish_event, settings):
         if publish_data_counter >= publish_data_limit:
             publish_event.set()
     
+    now = time.time()
+
+    if now - last_lcd_publish_time >= lcd_publish_interval:
+        publish.single(
+            "DhtValuesChanged",
+            json.dumps(payload_for_lcd),
+            hostname=HOSTNAME,
+            port=PORT
+        )
+        last_lcd_publish_time = now
+
     t = time.localtime()
     print(f"Timestamp: {time.strftime('%H:%M:%S', t)} | {name} Humidity: {humidity:.2f}%, Temperature: {temperature:.2f}°C")
 

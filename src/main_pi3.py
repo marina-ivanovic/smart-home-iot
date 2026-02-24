@@ -8,16 +8,45 @@ from pi3.sensors.pir3 import run_pir
 from pi3.components.ir_receiver import run_ir
 from pi3.actuators.rgb import actuate_rgb
 from pi3.actuators.lcd import run_lcd
+from env import HOSTNAME, PORT
 
-lights_status, buzzer_status = False, False
+dht1_humidity = 0.0
+dht1_temperature = 0.0
+dht2_humidity = 0.0
+dht2_temperature = 0.0
+dht3_humidity = 0.0
+dht3_temperature = 0.0
 
 def on_mqtt_message(client, userdata, msg):
-    global lights_status, buzzer_status
+    global dht1_humidity, dht1_temperature, dht2_humidity, dht2_temperature, dht3_humidity, dht3_temperature
 
     payload = json.loads(msg.payload.decode())
-    device = payload["device"]
+    if msg.topic == "pi3/dht":
+        
+        if "dht1_hum" in payload:
+            dht1_humidity = payload["dht1_hum"]
 
-    print(device)
+        if "dht1_temp" in payload:
+            dht1_temperature = payload["dht1_temp"]
+
+        if "dht2_hum" in payload:
+            dht2_humidity = payload["dht2_hum"]
+
+        if "dht2_temp" in payload:
+            dht2_temperature = payload["dht2_temp"]
+
+        if "dht3_hum" in payload:
+            dht3_humidity = payload["dht3_hum"]
+
+        if "dht3_temp" in payload:
+            dht3_temperature = payload["dht3_temp"]
+        
+    if msg.topic == "pi3/rgb":
+        actuate_rgb(payload["color"], pi3_settings["BRGB"], threads, stop_event, "BRGB")
+
+def trigger_lcd_loop(stop_event):
+    while not stop_event.is_set():
+        run_lcd(pi3_settings["LCD"], threads, stop_event, "LCD", trigger_lcd_loop, dht1_humidity, dht1_temperature, dht2_humidity, dht2_temperature, dht3_humidity, dht3_temperature)
 
 try:
     import RPi.GPIO as GPIO # type: ignore
@@ -50,14 +79,16 @@ if __name__ == "__main__":
         if 'DHT2' in pi3_settings: run_dht2(pi3_settings['DHT2'], threads, stop_event, "DHT2")
         if 'DPIR3' in pi3_settings: run_pir(pi3_settings['DPIR3'], threads, stop_event, "DPIR3")
         if 'IR' in pi3_settings: run_ir(pi3_settings['IR'], threads, stop_event, "IR")
+        lcd_thread = threading.Thread(target=trigger_lcd_loop, args=(stop_event,))
+        lcd_thread.start()
+        threads.append(lcd_thread)
 
-        run_lcd(pi3_settings["LCD"], threads, stop_event, "LCD")
-
-        # mqtt_client = mqtt.Client()
-        # mqtt_client.on_message = on_mqtt_message
-        # mqtt_client.connect("localhost", 1883, 60)
-        # mqtt_client.subscribe("pi3/actuator/cmd")
-        # mqtt_client.loop_start()
+        mqtt_client = mqtt.Client()
+        mqtt_client.on_message = on_mqtt_message
+        mqtt_client.connect(HOSTNAME, PORT, 60)
+        mqtt_client.subscribe("pi3/dht")
+        mqtt_client.subscribe("pi3/rgb")
+        mqtt_client.loop_start()
         while True:
             print_menu()
             command = input("Enter a command: ")

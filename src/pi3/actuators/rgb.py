@@ -1,12 +1,9 @@
-import RPi.GPIO as GPIO # type: ignore
+
 from time import sleep
 import threading
 import json
 import paho.mqtt.publish as publish
 from env import HOSTNAME, PORT
-
-#disable warnings (optional)
-GPIO.setwarnings(False)
 
 batch = []
 publish_data_counter = 0
@@ -52,8 +49,37 @@ def rgb_callback(value, name, publish_event, settings):
 
 def actuate_rgb(value, settings, threads, stop_event, name):
     if settings['simulated']:
-        pass # TODO: add simulator for rgb
+        if value == 1:
+            print("RGB LED: Shining White")
+            color = "White"
+        elif value == 2:
+            print("RGB LED: Shining Red")
+            color = "Red"
+        elif value == 3:
+            print("RGB LED: Shining Green")
+            color = "Green"
+        elif value == 4:
+            print("RGB LED: Shining Blue")
+            color = "Blue"
+        elif value == 5:
+            print("RGB LED: Shining Yellow")
+            color = "Yellow"
+        elif value == 6:
+            print("RGB LED: Shining Purple")
+            color = "Purple"
+        elif value == 7:
+            print("RGB LED: Shining Light Blue")
+            color = "Light Blue"
+        elif value == 8:
+            print("RGB LED: Turned Off")
+            color = "Off"
+        
+        rgb_callback(color, settings["name"], publish_event, settings)
     else:
+        import RPi.GPIO as GPIO # type: ignore
+        #disable warnings (optional)
+        GPIO.setwarnings(False)
+
         GPIO.setmode(GPIO.BCM)
 
         RED_PIN = settings['red_pin']
@@ -104,7 +130,7 @@ def actuate_rgb(value, settings, threads, stop_event, name):
             GPIO.output(RED_PIN, GPIO.LOW)
             GPIO.output(GREEN_PIN, GPIO.HIGH)
             GPIO.output(BLUE_PIN, GPIO.HIGH)
-            
+
         if value == 1:
             white()
             color = "White"
