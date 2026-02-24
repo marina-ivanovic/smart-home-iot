@@ -143,18 +143,28 @@
         <div class="control-card large">
           <div class="card-header-row">
             <h3>💡 Smart Light (BRGB)</h3>
-            <div class="toggle-wrapper">
+            <!--<div class="toggle-wrapper">
                <span class="toggle-label">{{ rgbState ? 'ON' : 'OFF' }}</span>
-            </div>
+            </div>-->
           </div>
           
           <div class="rgb-controls">
-            <button class="btn-toggle" [class.active]="rgbState" (click)="toggleRGB()">
+            <!--<button class="btn-toggle" [class.active]="rgbState" (click)="toggleRGB()">
               {{ rgbState ? 'TURN OFF' : 'TURN ON' }}
-            </button>
+            </button>-->
             <div class="color-picker-wrapper">
               <label>Color:</label>
-              <input type="color" [(ngModel)]="rgbColor" (change)="setRGBColor()">
+              <select [(ngModel)]="rgbColorValue" 
+                      (change)="setRGBColor()">
+                <option [ngValue]="1">White</option>
+                <option [ngValue]="2">Red</option>
+                <option [ngValue]="3">Green</option>
+                <option [ngValue]="4">Blue</option>
+                <option [ngValue]="5">Yellow</option>
+                <option [ngValue]="6">Purple</option>
+                <option [ngValue]="7">Light Blue</option>
+                <option [ngValue]="8">Off</option>
+              </select>
             </div>
           </div>
         </div>

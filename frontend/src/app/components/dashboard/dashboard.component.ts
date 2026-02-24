@@ -20,8 +20,8 @@ export class DashboardComponent implements OnInit {
   timerRunning: boolean = false;
 
   // PI3 Stanja
-  rgbState: boolean = false;
-  rgbColor: string = '#ffffff';
+  //rgbState: boolean = false;
+  rgbColorValue: number = 8;
   lcdMessage: string = 'Initialization...';
 
   globalAlarmActive: boolean = false;
@@ -82,8 +82,8 @@ export class DashboardComponent implements OnInit {
   configureAdd() { this.api.setAddAmount(this.timerAddAmount).subscribe(() => alert('Configuration saved!')); }
 
   // PI3 Metode
-  toggleRGB() { this.rgbState = !this.rgbState; }
-  setRGBColor() { console.log('RGB Color:', this.rgbColor); }
+  //toggleRGB() { this.rgbState = !this.rgbState; }
+  setRGBColor() { console.log('RGB Color:', this.rgbColorValue); this.api.setRgbColor(this.rgbColorValue).subscribe(() => alert('Color changed!')) }
 
 
   deactivateGlobalAlarm() {

@@ -26,4 +26,9 @@ export class ApiService {
   getLastReadings(): Observable<any> {
     return this.http.get(`${this.apiUrl}/api/state`);
   }
+
+  // PI3 Kontrole
+  setRgbColor(mode: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/pi3/rgb`, { color: mode })
+  }
 }
