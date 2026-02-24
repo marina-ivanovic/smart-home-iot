@@ -6,6 +6,7 @@ import json
 import threading
 from flask_cors import CORS
 from time import sleep
+import time
 
 
 app = Flask(__name__)
@@ -35,6 +36,18 @@ def delayed_system_boot():
     sleep(10)
     system_on = True
 
+def check_door_locked(is_triggered_by_ds1):
+    global ds1_last_signal, ds2_last_signal, alarm_on, system_on
+    
+    sleep(5)
+
+    if is_triggered_by_ds1:
+        if ds1_last_signal is not None and ds1_last_signal + 5 <= time.time() and system_on:
+            alarm_on = True
+    else:
+        if ds2_last_signal is not None and ds2_last_signal + 5 <= time.time() and system_on:
+            alarm_on = True
+
 def on_connect(client, userdata, flags, rc):
     client.subscribe("ButtonPress")
     client.subscribe("Key")
@@ -55,7 +68,7 @@ def on_connect(client, userdata, flags, rc):
     # TODO: subscribe to other channels here
 
 def on_message(client, userdata, msg):
-    global system_on, alarm_on, people_inside, dus1_queue, dus2_queue, dus_queue_size
+    global system_on, alarm_on, people_inside, dus1_queue, dus2_queue, dus_queue_size, ds1_last_signal, ds2_last_signal
     try:
         payload = json.loads(msg.payload.decode("utf-8"))
         topic = msg.topic
@@ -141,13 +154,22 @@ def on_message(client, userdata, msg):
                             
             if topic == "ButtonPress":
                 if payload["name"] == "DS1":
-                    # TODO: if True - update ds1 last signal to whatever the current time is
-                    # TODO: if False - set ds1 last signal to None
-                    pass
+                    if payload["value"]:
+                        ds1_last_signal = time.time()
+                        doorlock_thread = threading.Thread(target=check_door_locked, args=(True,))
+                        doorlock_thread.start()
+                    else:
+                        ds1_last_signal = None
+                        alarm_on = False
                 if payload["name"] == "DS2":
-                    # TODO: if True - update ds1 last signal to whatever the current time is
-                    # TODO: if False - set ds1 last signal to None
-                    pass
+                    if payload["value"]:
+                        ds2_last_signal = time.time()
+                        doorlock_thread = threading.Thread(target=check_door_locked, args=(False,))
+                        doorlock_thread.start()
+                    else:
+                        ds2_last_signal = None
+                        alarm_on = False
+
 
             if topic == "Key":
                 if payload["value"] == super_secret_pin:
