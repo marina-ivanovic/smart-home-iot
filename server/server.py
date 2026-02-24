@@ -327,6 +327,14 @@ def toggle_alarm():
     notify_pi1_alarm()
     return jsonify({"status": "success", "message": f"Set alarm to {alarm_on}"})
 
+@app.route("/api/system", methods=['POST'])
+def toggle_system():
+    global system_on
+    data = request.get_json()
+    is_system_on = data.get("system_on", system_on)
+    system_on = is_system_on
+    return jsonify({"status": "success", "message": f"Set system to {system_on}"})
+
 @app.route('/api/state', methods=['GET'])
 def get_current_state():
     query = f"""from(bucket: "{bucket}")
@@ -336,7 +344,4 @@ def get_current_state():
     return handle_influx_query(query)
 
 if __name__ == '__main__':
-    alarm_thread = threading.Thread(target=alarm_loop, daemon=True)
-    alarm_thread.start()
-
     app.run(debug=True, use_reloader=False)
