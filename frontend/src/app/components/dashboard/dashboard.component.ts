@@ -14,6 +14,9 @@ export class DashboardComponent implements OnInit {
   activeTab: string = 'PI1';
   sensorData: any[] = [];
   
+  // TODO: promeniti url u zavisnosti od pi-a koji se dobije na odbrani
+  cameraUrl: string = 'http://192.168.107.145:8080/?action=stream';
+
   // PI2 Kontrole
   timerValue: number = 0;
   timerAddAmount: number = 10;
