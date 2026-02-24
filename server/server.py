@@ -212,10 +212,11 @@ PI2_PORT = 1883
 PI3_PORT = 1883
 
 def notify_pi1_alarm():
-    mqtt_client.publish(
-        "pi1/alarm",
-        json.dumps({"alarm": alarm_on})
-    )
+    if system_on:
+        mqtt_client.publish(
+            "pi1/alarm",
+            json.dumps({"alarm": alarm_on})
+        )
 
 def save_to_db(data):
     write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
