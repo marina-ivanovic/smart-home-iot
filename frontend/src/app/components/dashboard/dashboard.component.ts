@@ -45,6 +45,8 @@ export class DashboardComponent implements OnInit {
     this.api.getLastReadings().subscribe((res: any) => {
       if (res.status === 'success') {
         this.sensorData = this.parseInfluxData(res.data);
+        this.alarmSystemEnabled = res.system
+        this.globalAlarmActive = res.alarm
       }
     });
   }
@@ -91,12 +93,13 @@ export class DashboardComponent implements OnInit {
 
   deactivateGlobalAlarm() {
     this.globalAlarmActive = false;
-    alert('Alarm deactivated successfully via Web App.');
+    this.api.setAlarm(false).subscribe(() => {alert('Alarm deactivated successfully via Web App.');})
   }
 
   toggleAlarmSystem() {
     this.alarmSystemEnabled = !this.alarmSystemEnabled;
     console.log(`Alarm system is now ${this.alarmSystemEnabled ? 'ENABLED' : 'DISABLED'}.`);
+    this.api.setSystem(this.alarmSystemEnabled).subscribe(() => {console.log("Successfully toggled alarm system")})
   }
 
   triggerManualScenario(scenario: string) {

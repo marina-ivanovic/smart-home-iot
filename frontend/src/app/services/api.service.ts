@@ -10,6 +10,14 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
+  setAlarm(alarm: boolean): Observable<any> {
+    return this.http.post(`${this.apiUrl}/api/alarm`, { alarm_on: alarm })
+  }
+
+  setSystem(system: boolean): Observable<any> {
+    return this.http.post(`${this.apiUrl}/api/system`, { system_on: system })
+  }
+
   toggleActuator(device: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/actuator/${device}/toggle`);
   }
