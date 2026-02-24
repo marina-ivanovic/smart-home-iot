@@ -279,7 +279,6 @@ def actuator_toggle(device):
     )
     return "OK"
 
-
 @app.route("/pi2/timer/set", methods=["POST"])
 def set_timer():
     data = request.get_json()
@@ -294,7 +293,16 @@ def set_timer_add_config():
     mqtt_client.publish("pi2/timer/add", json.dumps({"amount": amount}))
     return jsonify({"status": "success", "message": f"Add amount set to {amount}s"})
 
-# TODO: add route for changing BRGB in the app
+@app.route("/pi3/rgb", methods=['POST'])
+def change_rgb_color():
+    data = request.get_json()
+    color = int(data.get("color", 8))
+    outgoing_payload = { "color": int(color) }
+    mqtt_client.publish(
+        "pi3/rgb",
+        json.dumps(outgoing_payload)
+    )
+    return jsonify({"status": "success", "message": f"Color RGB set to option {color}"})
 
 # TODO: add route for turning alarm off
 
