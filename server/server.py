@@ -3,7 +3,9 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 import paho.mqtt.client as mqtt
 import json
+import threading
 from flask_cors import CORS
+from time import sleep
 
 
 app = Flask(__name__)
@@ -18,6 +20,7 @@ dus1_queue = []
 dus2_queue = []
 ds1_last_signal = None
 ds2_last_signal = None
+super_secret_pin = "1111"
 
 # InfluxDB Configuration
 token = "token" # TODO: change token
@@ -25,6 +28,12 @@ org = "org" # TODO: change organization
 url = "http://localhost:8086"
 bucket = "bucket" # TODO: change bucket
 influxdb_client = InfluxDBClient(url=url, token=token, org=org)
+
+def delayed_system_boot():
+    global system_on
+
+    sleep(10)
+    system_on = True
 
 def on_connect(client, userdata, flags, rc):
     client.subscribe("ButtonPress")
@@ -141,9 +150,16 @@ def on_message(client, userdata, msg):
                     pass
 
             if topic == "Key":
-                # TODO: compare if correct PIN was inserted
-                # WRONG PIN -> if system on turn alarm on, if system off nothing happens
-                # CORRECT PIN -> if system on, turn it off and turn alarm off, if system off, turn it on after 10 seconds
+                if payload["value"] == super_secret_pin:
+                    if system_on:
+                        system_on = False
+                        alarm_on = False
+                    else:
+                        system_thread = threading.Thread(target=delayed_system_boot)
+                        system_thread.start()
+                else:
+                    if system_on:
+                        alarm_on = True
                 pass
 
             if topic == "Gyroscope":
