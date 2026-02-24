@@ -44,9 +44,11 @@ def check_door_locked(is_triggered_by_ds1):
     if is_triggered_by_ds1:
         if ds1_last_signal is not None and ds1_last_signal + 5 <= time.time() and system_on:
             alarm_on = True
+            notify_pi1_alarm()
     else:
         if ds2_last_signal is not None and ds2_last_signal + 5 <= time.time() and system_on:
             alarm_on = True
+            notify_pi1_alarm()
 
 def on_connect(client, userdata, flags, rc):
     client.subscribe("ButtonPress")
@@ -64,8 +66,6 @@ def on_connect(client, userdata, flags, rc):
 
     # channel where dht values will be sent for lcd to be updated
     client.subscribe("DhtValuesChanged")
-
-    # TODO: subscribe to other channels here
 
 def on_message(client, userdata, msg):
     global system_on, alarm_on, people_inside, dus1_queue, dus2_queue, dus_queue_size, ds1_last_signal, ds2_last_signal
@@ -111,6 +111,7 @@ def on_message(client, userdata, msg):
             if topic == "MotionDetected":
                 if system_on and people_inside <= 0:
                     alarm_on = True
+                    notify_pi1_alarm()
 
                 if payload["name"] == "DPIR1":
                     outgoing_payload = { "light": True }
@@ -161,6 +162,7 @@ def on_message(client, userdata, msg):
                     else:
                         ds1_last_signal = None
                         alarm_on = False
+                        notify_pi1_alarm()
                 if payload["name"] == "DS2":
                     if payload["value"]:
                         ds2_last_signal = time.time()
@@ -169,6 +171,7 @@ def on_message(client, userdata, msg):
                     else:
                         ds2_last_signal = None
                         alarm_on = False
+                        notify_pi1_alarm()
 
 
             if topic == "Key":
@@ -176,17 +179,20 @@ def on_message(client, userdata, msg):
                     if system_on:
                         system_on = False
                         alarm_on = False
+                        notify_pi1_alarm()
                     else:
                         system_thread = threading.Thread(target=delayed_system_boot)
                         system_thread.start()
                 else:
                     if system_on:
                         alarm_on = True
-                pass
+                        notify_pi1_alarm()
 
             if topic == "Gyroscope":
-                # TODO: figure out what is "significant movement" and if there is any, turn on alarm if system is on
-                pass
+                if payload["significant_movement"]:
+                    if system_on:
+                        alarm_on = True
+                        notify_pi1_alarm()
 
     except Exception as e:
         print("Error processing message:", e)
@@ -204,6 +210,12 @@ PI3_IP = "localhost"
 PI1_PORT = 1883
 PI2_PORT = 1883
 PI3_PORT = 1883
+
+def notify_pi1_alarm():
+    mqtt_client.publish(
+        "pi1/alarm",
+        json.dumps({"alarm": alarm_on})
+    )
 
 def save_to_db(data):
     write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
@@ -241,6 +253,7 @@ def store_data():
 
 
 def handle_influx_query(query):
+    global alarm_on, system_on
     try:
         query_api = influxdb_client.query_api()
         tables = query_api.query(query, org=org)
@@ -250,7 +263,7 @@ def handle_influx_query(query):
             for record in table.records:
                 container.append(record.values)
 
-        return jsonify({"status": "success", "data": container})
+        return jsonify({"status": "success", "data": container, "alarm": alarm_on, "system": system_on})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
@@ -304,7 +317,14 @@ def change_rgb_color():
     )
     return jsonify({"status": "success", "message": f"Color RGB set to option {color}"})
 
-# TODO: add route for turning alarm off
+@app.route("/api/alarm", methods=['POST'])
+def toggle_alarm():
+    global alarm_on
+    data = request.get_json()
+    is_alarm_on = data.get("alarm_on", alarm_on)
+    alarm_on = is_alarm_on
+    notify_pi1_alarm()
+    return jsonify({"status": "success", "message": f"Set alarm to {alarm_on}"})
 
 @app.route('/api/state', methods=['GET'])
 def get_current_state():
@@ -315,4 +335,7 @@ def get_current_state():
     return handle_influx_query(query)
 
 if __name__ == '__main__':
+    alarm_thread = threading.Thread(target=alarm_loop, daemon=True)
+    alarm_thread.start()
+
     app.run(debug=True, use_reloader=False)
