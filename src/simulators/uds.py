@@ -1,10 +1,10 @@
 import time
 import random
 
-def generate_values(initial_distance=100):
-    distance = initial_distance
+def generate_values(initial_distance=100.0):
+    distance: float = initial_distance
     while True:
-        distance = distance + random.randint(-10, 10)
+        distance = distance + float(random.randint(-10, 10))
         if distance < 0: distance = 0
         yield distance
 

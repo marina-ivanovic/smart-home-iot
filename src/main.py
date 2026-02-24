@@ -8,22 +8,45 @@ from components.uds import run_uds
 from settings import load_settings
 from components.dl import run_dl
 from components.db import run_db
+from time import sleep
 
 lights_status, buzzer_status = False, False
+
+def dl_turn_on():
+    run_dl(pi1_settings['DL'], True)
+    sleep(10)
+    run_dl(pi1_settings['DL'], False)
+    
 
 def on_mqtt_message(client, userdata, msg):
     global lights_status, buzzer_status
 
-    payload = json.loads(msg.payload.decode())
-    device = payload["device"]
-
-    if device == "DL":
-        lights_status = not lights_status
-        run_dl(pi1_settings['DL'], lights_status)
-
-    elif device == "DB":
-        buzzer_status = not buzzer_status
+    if msg.topic == "pi1/motionDl":
+        dl_thread = threading.Thread(target=dl_turn_on)
+        dl_thread.start()
+        threads.append(dl_thread)
+    elif msg.topic == "pi1/alarm":
+        payload = json.loads(msg.payload.decode())
+        alarm = payload["alarm"]
+        
+        if alarm:
+            buzzer_status = True
+        else:
+            buzzer_status = False
+        
         run_db(pi1_settings['DB'], buzzer_status)
+    else:
+        payload = json.loads(msg.payload.decode())
+        device = payload["device"]
+
+        if device == "DL":
+            lights_status = not lights_status
+            run_dl(pi1_settings['DL'], lights_status)
+
+        elif device == "DB":
+            buzzer_status = not buzzer_status
+            run_db(pi1_settings['DB'], buzzer_status)
+
 
 try:
     import RPi.GPIO as GPIO
@@ -56,6 +79,8 @@ if __name__ == "__main__":
         mqtt_client.on_message = on_mqtt_message
         mqtt_client.connect("localhost", 1883, 60)
         mqtt_client.subscribe("pi1/actuator/cmd")
+        mqtt_client.subscribe("pi1/motionDl")
+        mqtt_client.subscribe("pi1/alarm")
         mqtt_client.loop_start()
         while True:
             print_menu()

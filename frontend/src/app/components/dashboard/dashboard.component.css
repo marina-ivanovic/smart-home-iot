@@ -364,6 +364,16 @@ button { font-family: inherit; transition: all 0.2s; }
   color: #95a5a6;
 }
 
+.camera-embed {
+  margin-top: 40px;
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 200px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: white;
+  border: 1px solid #eee;
+}
+
 /* ANIMATIONS */
 .fade-in { animation: fadeIn 0.4s ease-in; }
 @keyframes fadeIn {

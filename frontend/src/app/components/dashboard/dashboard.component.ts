@@ -14,14 +14,17 @@ export class DashboardComponent implements OnInit {
   activeTab: string = 'PI1';
   sensorData: any[] = [];
   
+  // TODO: promeniti url u zavisnosti od pi-a koji se dobije na odbrani
+  cameraUrl: string = 'http://192.168.107.145:8080/?action=stream';
+
   // PI2 Kontrole
   timerValue: number = 0;
   timerAddAmount: number = 10;
   timerRunning: boolean = false;
 
   // PI3 Stanja
-  rgbState: boolean = false;
-  rgbColor: string = '#ffffff';
+  //rgbState: boolean = false;
+  rgbColorValue: number = 8;
   lcdMessage: string = 'Initialization...';
 
   globalAlarmActive: boolean = false;
@@ -42,6 +45,8 @@ export class DashboardComponent implements OnInit {
     this.api.getLastReadings().subscribe((res: any) => {
       if (res.status === 'success') {
         this.sensorData = this.parseInfluxData(res.data);
+        this.alarmSystemEnabled = res.system
+        this.globalAlarmActive = res.alarm
       }
     });
   }
@@ -82,18 +87,19 @@ export class DashboardComponent implements OnInit {
   configureAdd() { this.api.setAddAmount(this.timerAddAmount).subscribe(() => alert('Configuration saved!')); }
 
   // PI3 Metode
-  toggleRGB() { this.rgbState = !this.rgbState; }
-  setRGBColor() { console.log('RGB Color:', this.rgbColor); }
+  //toggleRGB() { this.rgbState = !this.rgbState; }
+  setRGBColor() { console.log('RGB Color:', this.rgbColorValue); this.api.setRgbColor(this.rgbColorValue).subscribe(() => alert('Color changed!')) }
 
 
   deactivateGlobalAlarm() {
     this.globalAlarmActive = false;
-    alert('Alarm deactivated successfully via Web App.');
+    this.api.setAlarm(false).subscribe(() => {alert('Alarm deactivated successfully via Web App.');})
   }
 
   toggleAlarmSystem() {
     this.alarmSystemEnabled = !this.alarmSystemEnabled;
     console.log(`Alarm system is now ${this.alarmSystemEnabled ? 'ENABLED' : 'DISABLED'}.`);
+    this.api.setSystem(this.alarmSystemEnabled).subscribe(() => {console.log("Successfully toggled alarm system")})
   }
 
   triggerManualScenario(scenario: string) {
