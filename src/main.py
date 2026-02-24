@@ -80,6 +80,7 @@ if __name__ == "__main__":
         mqtt_client.connect("localhost", 1883, 60)
         mqtt_client.subscribe("pi1/actuator/cmd")
         mqtt_client.subscribe("pi1/motionDl")
+        mqtt_client.subscribe("pi1/alarm")
         mqtt_client.loop_start()
         while True:
             print_menu()
