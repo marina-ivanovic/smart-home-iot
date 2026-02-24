@@ -25,6 +25,16 @@ def on_mqtt_message(client, userdata, msg):
         dl_thread = threading.Thread(target=dl_turn_on)
         dl_thread.start()
         threads.append(dl_thread)
+    elif msg.topic == "pi1/alarm":
+        payload = json.loads(msg.payload.decode())
+        alarm = payload["alarm"]
+        
+        if alarm:
+            buzzer_status = True
+        else:
+            buzzer_status = False
+        
+        run_db(pi1_settings['DB'], buzzer_status)
     else:
         payload = json.loads(msg.payload.decode())
         device = payload["device"]
@@ -36,6 +46,7 @@ def on_mqtt_message(client, userdata, msg):
         elif device == "DB":
             buzzer_status = not buzzer_status
             run_db(pi1_settings['DB'], buzzer_status)
+
 
 try:
     import RPi.GPIO as GPIO
