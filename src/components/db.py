@@ -34,6 +34,7 @@ def run_db(settings, on):
     else:
         # TODO: VERY IMPORTANT! TEST THIS FUNCTIONALITY ON CONSULTATIONS
         import RPi.GPIO as GPIO
+        GPIO.setup(settings['pin'], GPIO.OUT)
         GPIO.output(settings['pin'], GPIO.HIGH if on else GPIO.LOW)
         print(f"Real DB toggled: {on}")
 
