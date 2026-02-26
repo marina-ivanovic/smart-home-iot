@@ -82,7 +82,7 @@ def run_dht(settings, threads, stop_event, name):
         threads.append(dht_thread)
     else:
         # Real DHT11 sensor
-        import LA_DHT as DHT
+        from . import LA_DHT as DHT
         dht = DHT.DHT(settings['pin'])
         
         def read_dht_real():
