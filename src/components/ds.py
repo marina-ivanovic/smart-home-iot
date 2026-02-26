@@ -7,7 +7,7 @@ from env import HOSTNAME, PORT
 
 batch = []
 publish_data_counter = 0
-publish_data_limit = 5 # Change the batch size as needed
+publish_data_limit = 1 # Change the batch size as needed
 counter_lock = threading.Lock()
 
 def publisher_task(event, batch):
@@ -35,7 +35,7 @@ def ds_callback(value, name, publish_event, settings):
         "simulated": settings['simulated'],
         "runs_on": settings["runs_on"],
         "name": settings["name"],
-        "value": value
+        "value": bool(value)
     }
 
     with counter_lock:
@@ -46,7 +46,7 @@ def ds_callback(value, name, publish_event, settings):
             publish_event.set()
     
     t = time.localtime()
-    print(f"Timestamp: {time.strftime('%H:%M:%S', t)} | {name} Button Pressed")
+    print(f"Timestamp: {time.strftime('%H:%M:%S', t)} | {name} Button Pressed: {bool(value)}")
 
 def run_ds(settings, threads, stop_event, name):
     if settings['simulated']:
