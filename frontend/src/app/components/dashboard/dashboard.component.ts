@@ -60,12 +60,12 @@ export class DashboardComponent implements OnInit {
     for (const record of data) {
       if (!record || record.length < 5) continue;
       parsedData.push({
-        measurement: record[7],
-        value: record[5],
-        name: record[8],
-        runs_on: record[9],
-        time: record[4],
-        displayValue: typeof record[5] === 'number' ? record[5].toFixed(2) : record[5] 
+        measurement: record["_measurement"],
+        value: record["_value"],
+        name: record["name"],
+        runs_on: record["runs_on"],
+        time: record["_time"],
+        displayValue: typeof record["_value"] === 'number' ? record["_value"].toFixed(2) : record["_value"] 
       });
     }
     return parsedData;

@@ -72,7 +72,7 @@
           <div class="sensor-icon">📡</div>
           <div class="sensor-info">
             <h4>{{ item.measurement }}</h4>
-            <p class="sensor-value">{{ item.value }}</p>
+            <p class="sensor-value">{{ item.displayValue }}</p>
             <span class="sensor-name">{{ item.name }}</span>
           </div>
         </div>
@@ -131,6 +131,18 @@
         </div>
       </div>
 
+      <h3>Live Sensors</h3>
+      <div class="sensor-grid">
+        <div class="sensor-card" *ngFor="let item of filteredData">
+          <div class="sensor-icon">📡</div>
+          <div class="sensor-info">
+            <h4>{{ item.measurement }}</h4>
+            <p class="sensor-value">{{ item.displayValue }}</p>
+            <span class="sensor-name">{{ item.name }}</span>
+          </div>
+        </div>
+      </div>
+
       <!-- GRAFANA -->
       <h3>Data History</h3>
       <div class="grafana-embed">
@@ -183,6 +195,18 @@
           </div>
           <small>Displays Temperature/Humidity</small>
         </div>-->
+      </div>
+
+      <h3>Live Sensors</h3>
+      <div class="sensor-grid">
+        <div class="sensor-card" *ngFor="let item of filteredData">
+          <div class="sensor-icon">📡</div>
+          <div class="sensor-info">
+            <h4>{{ item.measurement }}</h4>
+            <p class="sensor-value">{{ item.displayValue }}</p>
+            <span class="sensor-name">{{ item.name }}</span>
+          </div>
+        </div>
       </div>
 
       <h3>Data History</h3>
