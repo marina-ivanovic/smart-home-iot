@@ -10,6 +10,7 @@ from pi2.sensors.dht3 import run_dht
 from pi2.sensors.gsg import run_gsg
 from pi2.actuators.sd4 import actuate_4sd, blink_4sd
 from settings import load_settings
+from env import HOSTNAME, PORT
 
 # Global state for timer
 timer_seconds = 0
@@ -101,7 +102,7 @@ if __name__ == "__main__":
         # MQTT client for Web app commands
         mqtt_client = mqtt.Client()
         mqtt_client.on_message = on_mqtt_message
-        mqtt_client.connect("localhost", 1883, 60)
+        mqtt_client.connect(HOSTNAME, PORT, 60)
         mqtt_client.subscribe("pi2/timer/set")
         mqtt_client.subscribe("pi2/timer/add")
         mqtt_client.subscribe("pi2/display/cmd")

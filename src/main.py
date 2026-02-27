@@ -9,6 +9,7 @@ from settings import load_settings
 from components.dl import run_dl
 from components.db import run_db
 from time import sleep
+from env import HOSTNAME, PORT
 
 lights_status, buzzer_status = False, False
 
@@ -77,7 +78,7 @@ if __name__ == "__main__":
 
         mqtt_client = mqtt.Client()
         mqtt_client.on_message = on_mqtt_message
-        mqtt_client.connect("localhost", 1883, 60)
+        mqtt_client.connect(HOSTNAME, PORT, 60)
         mqtt_client.subscribe("pi1/actuator/cmd")
         mqtt_client.subscribe("pi1/motionDl")
         mqtt_client.subscribe("pi1/alarm")
