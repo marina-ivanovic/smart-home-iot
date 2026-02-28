@@ -1,30 +1,126 @@
 {
     "PI1": {
         "DS1": {
-        "pin": 17,
-        "simulated": true
+            "pin": 17,
+            "simulated": true,
+            "name": "DS1",
+            "runs_on": "PI1"
         },
         "DL": {
             "pin": 27,
-            "simulated": true
+            "simulated": true,
+            "name": "DL",
+            "runs_on": "PI1"
         },
         "DUS1": {
             "pin_trig": 23,
             "pin_echo": 24,
-            "simulated": true
+            "simulated": true,
+            "name": "DUS1",
+            "runs_on": "PI1"
         },
         "DB": {
             "pin": 22,
-            "simulated": true
+            "simulated": true,
+            "name": "DB",
+            "runs_on": "PI1"
         },
         "DPIR1": {
-            "pin": 4,
-            "simulated": true
+            "pin": 18,
+            "simulated": true,
+            "name": "DPIR1",
+            "runs_on": "PI1"
         },
         "DMS": {
             "R1": 5, "R2": 6, "R3": 13, "R4": 19,
             "C1": 12, "C2": 16, "C3": 20, "C4": 21,
-            "simulated": true
+            "simulated": true,
+            "name": "DMS",
+            "runs_on": "PI1"
+        }
+    },
+    "PI2": {
+        "DS2": {
+            "pin": 17,
+            "simulated": true,
+            "name": "DS2",
+            "runs_on": "PI2"
+        },
+        "DUS2": {
+            "pin_trig": 23,
+            "pin_echo": 24,
+            "simulated": true,
+            "name": "DUS2",
+            "runs_on": "PI2"
+        },
+        "DPIR2": {
+            "pin": 18,
+            "simulated": true,
+            "name": "DPIR2",
+            "runs_on": "PI2"
+        },
+        "4SD": {
+            "segments": [11, 10, 9, 25, 8, 7, 5, 6],
+            "digits": [26, 19, 13, 12],
+            "simulated": true,
+            "name": "4SD",
+            "runs_on": "PI2"
+        },
+        "BTN": {
+            "pin": 27,
+            "simulated": true,
+            "name": "BTN",
+            "runs_on": "PI2"
+        },
+        "DHT3": {
+            "pin": 22,
+            "simulated": true,
+            "name": "DHT3",
+            "runs_on": "PI2"
+        },
+        "GSG": {
+            "simulated": true,
+            "name": "GSG",
+            "runs_on": "PI2"
+        }
+    },
+    "PI3": {
+        "DHT1": {
+            "pin": 22,
+            "simulated": true,
+            "name": "DHT1",
+            "runs_on": "PI3"
+        },
+        "DHT2": {
+            "pin": 23,
+            "simulated": true,
+            "name": "DHT2",
+            "runs_on": "PI3"
+        },
+        "IR": {
+            "pin": 17,
+            "simulated": true,
+            "name": "IR",
+            "runs_on": "PI3"
+        },
+        "BRGB": {
+            "red_pin": 12,
+            "green_pin": 13,
+            "blue_pin": 19,
+            "simulated": true,
+            "name": "BRGB",
+            "runs_on": "PI3"
+        },
+        "LCD": {
+            "simulated": true,
+            "name": "LCD",
+            "runs_on": "PI3"
+        },
+        "DPIR3": {
+            "pin": 18,
+            "simulated": true,
+            "name": "DPIR3",
+            "runs_on": "PI3"
         }
     }
 }

@@ -3,6 +3,7 @@ import threading
 import time
 import json
 import paho.mqtt.publish as publish
+import settings
 from env import HOSTNAME, PORT
 
 batch = []
@@ -46,7 +47,7 @@ def ds_callback(value, name, publish_event, settings):
             publish_event.set()
     
     t = time.localtime()
-    print(f"Timestamp: {time.strftime('%H:%M:%S', t)} | {name} Button Pressed: {bool(value)}")
+    print(f"Timestamp: {time.strftime('%H:%M:%S', t)} | {name} Button Pressed {bool(value)}")
 
 def run_ds(settings, threads, stop_event, name):
     if settings['simulated']:
@@ -54,7 +55,7 @@ def run_ds(settings, threads, stop_event, name):
         ds_thread.start()
         threads.append(ds_thread)
     else:
-        import RPi.GPIO as GPIO  # type: ignore
+        import RPi.GPIO as GPIO
         pin = settings['pin']
         GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         

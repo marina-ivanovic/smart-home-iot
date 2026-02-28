@@ -54,7 +54,7 @@ def run_uds(settings, threads, stop_event, name):
         uds_thread.start()
         threads.append(uds_thread)
     else:
-        import RPi.GPIO as GPIO # type: ignore
+        import RPi.GPIO as GPIO
         trig = settings['pin_trig']
         echo = settings['pin_echo']
         
@@ -70,18 +70,18 @@ def run_uds(settings, threads, stop_event, name):
                 time.sleep(0.00001)
                 GPIO.output(trig, False)
                 
-                pulse_start = time.time()
-                pulse_end = time.time()
+                pulse_start = time.perf_counter()
+                pulse_end = time.perf_counter()
                 
-                timeout = time.time() + 0.1
+                timeout = time.perf_counter() + 0.1
                 while GPIO.input(echo) == 0:
-                    pulse_start = time.time()
-                    if time.time() > timeout: break
+                    pulse_start = time.perf_counter()
+                    if pulse_start > timeout: break
 
                 timeout = time.time() + 0.1
                 while GPIO.input(echo) == 1:
-                    pulse_end = time.time()
-                    if time.time() > timeout: break
+                    pulse_end = time.perf_counter()
+                    if pulse_end > timeout: break
 
                 pulse_duration = pulse_end - pulse_start
                 distance = pulse_duration * 17150
