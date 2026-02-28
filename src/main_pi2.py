@@ -91,7 +91,7 @@ if __name__ == "__main__":
         if 'DS2' in pi2_settings: run_ds2(pi2_settings['DS2'], threads, stop_event, "DS2")
         if 'DUS2' in pi2_settings: run_dus2(pi2_settings['DUS2'], threads, stop_event, "DUS2")
         if 'DPIR2' in pi2_settings: run_pir2(pi2_settings['DPIR2'], threads, stop_event, "DPIR2")
-        if 'BTN' in pi2_settings: run_btn(pi2_settings['BTN'], threads, stop_event, "BTN")
+        if 'BTN' in pi2_settings: run_btn(pi2_settings['BTN'], threads, stop_event, "BTN", btn_pressed_handler)
         if 'DHT3' in pi2_settings: run_dht(pi2_settings['DHT3'], threads, stop_event, "DHT3")
         if 'GSG' in pi2_settings: run_gsg(pi2_settings['GSG'], threads, stop_event, "GSG")
         
