@@ -134,6 +134,8 @@ def on_message(client, userdata, msg):
                             people_inside += 1
                         else:
                             people_inside -= 1
+                        if people_inside < 0:
+                            people_inside = 0
 
                 if payload["name"] == "DPIR2":
                     distance = 0
@@ -213,6 +215,11 @@ PI3_PORT = 1883
 
 def notify_pi1_alarm():
     if system_on:
+        mqtt_client.publish(
+            "pi1/alarm",
+            json.dumps({"alarm": alarm_on})
+        )
+    if not system_on and not alarm_on:
         mqtt_client.publish(
             "pi1/alarm",
             json.dumps({"alarm": alarm_on})
